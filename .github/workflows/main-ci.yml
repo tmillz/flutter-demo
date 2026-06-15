@@ -1,0 +1,28 @@
+name: Post Merge
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  post-merge:
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.44.2'
+          channel: 'stable'
+          cache: true
+          cache-key: flutter-${{ runner.os }}-${{ hashFiles('**/pubspec.lock') }}
+
+      - name: Use CI Firebase options
+        run: cp lib/firebase_options_ci.dart lib/firebase_options.dart
+
+      - name: Flutter analyze
+        run: flutter analyze

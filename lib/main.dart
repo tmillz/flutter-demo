@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:flutter_application_1/presentation/screens/home_screen.dart';
-import 'package:flutter_application_1/presentation/screens/signin_screen.dart';
+import 'package:flutter_demo/presentation/screens/home_screen.dart';
+import 'package:flutter_demo/presentation/screens/signin_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';

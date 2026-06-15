@@ -15,3 +15,20 @@ A few resources to get you started if this is your first Flutter project:
 For help getting started with Flutter development, view the
 [online documentation](https://docs.flutter.dev/), which offers tutorials,
 samples, guidance on mobile development, and a full API reference.
+
+## Development
+
+To run the app locally, use the following commands:
+
+```bash
+firebase emulators:start --import=./firebase-export
+flutter run -d chrome
+```
+
+To deploy the app to Firebase Hosting, use the following command:
+
+```bash
+firebase deploy --only hosting
+OR
+firebase deploy --only hosting,firestore
+```
