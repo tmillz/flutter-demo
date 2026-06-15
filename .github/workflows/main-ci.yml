@@ -1,12 +1,12 @@
-name: Pull Requests
+name: Post Merge
 
 on:
-  pull_request:
+  push:
     branches:
       - main
 
 jobs:
-  pull-request:
+  main-ci:
     runs-on: ubuntu-latest
     steps:
 
