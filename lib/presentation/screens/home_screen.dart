@@ -195,26 +195,26 @@ class _HomePageState extends State<HomePage> {
                     ? const Icon(Icons.logout)
                     : const Icon(Icons.account_circle),
                 onPressed: () async {
+                  // Capture context-dependent objects before any async gap so
+                  // we never touch a BuildContext after awaiting.
                   final messenger = ScaffoldMessenger.of(c);
+                  final router = GoRouter.of(c);
+                  if (!signedIn) {
+                    router.push('/signin');
+                    return;
+                  }
                   try {
-                    if (signedIn) {
-                      await FirebaseAuthService.signOut();
-                      if (mounted) {
-                        messenger.showSnackBar(
-                          const SnackBar(content: Text('Signed out')),
-                        );
-                        GoRouter.of(c).push('/signin');
-                      }
-                    } else {
-                      // Navigate to the sign-in screen instead of initiating sign-in here
-                      GoRouter.of(c).push('/signin');
-                    }
+                    await FirebaseAuthService.signOut();
+                    if (!mounted) return;
+                    messenger.showSnackBar(
+                      const SnackBar(content: Text('Signed out')),
+                    );
+                    router.push('/signin');
                   } catch (e) {
-                    if (mounted) {
-                      messenger.showSnackBar(
-                        SnackBar(content: Text('Sign-in failed: $e')),
-                      );
-                    }
+                    if (!mounted) return;
+                    messenger.showSnackBar(
+                      SnackBar(content: Text('Sign-in failed: $e')),
+                    );
                   }
                 },
               );
