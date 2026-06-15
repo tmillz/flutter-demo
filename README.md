@@ -18,9 +18,17 @@ samples, guidance on mobile development, and a full API reference.
 
 ## Development
 
-To run the app locally, use the following command:
+To run the app locally, use the following commands:
 
 ```bash
 firebase emulators:start --import=./firebase-export
 flutter run -d chrome
+```
+
+To deploy the app to Firebase Hosting, use the following command:
+
+```bash
+firebase deploy --only hosting
+OR
+firebase deploy --only hosting,firestore
 ```
