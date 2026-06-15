@@ -173,7 +173,7 @@ class _HomePageState extends State<HomePage> {
           IconButton(
             tooltip: 'Toggle theme',
             icon: Builder(
-              builder: (c) {
+              builder: (context) {
                 final mode = ThemeService.notifier.value;
                 if (mode == ThemeMode.system) {
                   return const Icon(Icons.brightness_auto);
@@ -187,7 +187,7 @@ class _HomePageState extends State<HomePage> {
             onPressed: () => ThemeService.cycleMode(),
           ),
           Builder(
-            builder: (c) {
+            builder: (context) {
               final signedIn = _firebaseUser != null;
               return IconButton(
                 tooltip: signedIn ? 'Sign out' : 'Sign in with Google',
@@ -195,7 +195,8 @@ class _HomePageState extends State<HomePage> {
                     ? const Icon(Icons.logout)
                     : const Icon(Icons.account_circle),
                 onPressed: () async {
-                  final messenger = ScaffoldMessenger.of(c);
+                  final messenger = ScaffoldMessenger.of(context);
+                  final router = GoRouter.of(context);
                   try {
                     if (signedIn) {
                       await FirebaseAuthService.signOut();
@@ -203,11 +204,11 @@ class _HomePageState extends State<HomePage> {
                         messenger.showSnackBar(
                           const SnackBar(content: Text('Signed out')),
                         );
-                        GoRouter.of(c).push('/signin');
+                        router.push('/signin');
                       }
                     } else {
                       // Navigate to the sign-in screen instead of initiating sign-in here
-                      GoRouter.of(c).push('/signin');
+                      router.push('/signin');
                     }
                   } catch (e) {
                     if (mounted) {
