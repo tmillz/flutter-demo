@@ -173,7 +173,7 @@ class _HomePageState extends State<HomePage> {
           IconButton(
             tooltip: 'Toggle theme',
             icon: Builder(
-              builder: (c) {
+              builder: (context) {
                 final mode = ThemeService.notifier.value;
                 if (mode == ThemeMode.system) {
                   return const Icon(Icons.brightness_auto);
@@ -187,7 +187,7 @@ class _HomePageState extends State<HomePage> {
             onPressed: () => ThemeService.cycleMode(),
           ),
           Builder(
-            builder: (c) {
+            builder: (context) {
               final signedIn = _firebaseUser != null;
               return IconButton(
                 tooltip: signedIn ? 'Sign out' : 'Sign in with Google',
@@ -195,26 +195,26 @@ class _HomePageState extends State<HomePage> {
                     ? const Icon(Icons.logout)
                     : const Icon(Icons.account_circle),
                 onPressed: () async {
-                  final messenger = ScaffoldMessenger.of(c);
+                  // Capture context-dependent objects before any async gap so
+                  // we never touch a BuildContext after awaiting.
+                  final messenger = ScaffoldMessenger.of(context);
+                  final router = GoRouter.of(context);
+                  if (!signedIn) {
+                    router.push('/signin');
+                    return;
+                  }
                   try {
-                    if (signedIn) {
-                      await FirebaseAuthService.signOut();
-                      if (mounted) {
-                        messenger.showSnackBar(
-                          const SnackBar(content: Text('Signed out')),
-                        );
-                        GoRouter.of(c).push('/signin');
-                      }
-                    } else {
-                      // Navigate to the sign-in screen instead of initiating sign-in here
-                      GoRouter.of(c).push('/signin');
-                    }
+                    await FirebaseAuthService.signOut();
+                    if (!mounted) return;
+                    messenger.showSnackBar(
+                      const SnackBar(content: Text('Signed out')),
+                    );
+                    router.push('/signin');
                   } catch (e) {
-                    if (mounted) {
-                      messenger.showSnackBar(
-                        SnackBar(content: Text('Sign-in failed: $e')),
-                      );
-                    }
+                    if (!mounted) return;
+                    messenger.showSnackBar(
+                      SnackBar(content: Text('Sign-in failed: $e')),
+                    );
                   }
                 },
               );
