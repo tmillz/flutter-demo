@@ -197,8 +197,8 @@ class _HomePageState extends State<HomePage> {
                 onPressed: () async {
                   // Capture context-dependent objects before any async gap so
                   // we never touch a BuildContext after awaiting.
-                  final messenger = ScaffoldMessenger.of(c);
-                  final router = GoRouter.of(c);
+                  final messenger = ScaffoldMessenger.of(context);
+                  final router = GoRouter.of(context);
                   if (!signedIn) {
                     router.push('/signin');
                     return;
