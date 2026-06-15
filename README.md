@@ -28,6 +28,7 @@ flutter run -d chrome
 To deploy the app to Firebase Hosting, use the following command:
 
 ```bash
+flutter build web --release
 firebase deploy --only hosting
 OR
 firebase deploy --only hosting,firestore
