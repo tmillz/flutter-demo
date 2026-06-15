@@ -6,7 +6,7 @@ on:
       - main
 
 jobs:
-  build:
+  pull-request:
     runs-on: ubuntu-latest
     steps:
 
@@ -18,6 +18,9 @@ jobs:
         with:
           flutter-version: '3.44.2'
           channel: 'stable'
-      
+
+      - name: Use CI Firebase options
+        run: cp lib/firebase_options_ci.dart lib/firebase_options.dart
+
       - name: Flutter analyze
         run: flutter analyze
