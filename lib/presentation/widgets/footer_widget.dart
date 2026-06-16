@@ -47,7 +47,7 @@ class _FooterLink extends StatelessWidget {
       onTap: () async {
         final uri = Uri.parse(url);
         if (await canLaunchUrl(uri)) {
-          await launchUrl(uri, mode: LaunchMode.externalApplication);
+          await launchUrl(uri, mode: LaunchMode.platformDefault);
         }
       },
       child: Text(
