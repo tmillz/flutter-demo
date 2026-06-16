@@ -5,17 +5,18 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:go_router/go_router.dart';
 import '../../data/services/theme_service.dart';
 import '../widgets/google_signin_button.dart';
+import '../widgets/footer_widget.dart';
 
-class SigninPage extends StatefulWidget {
-  const SigninPage({super.key, required this.title});
+class SigninScreen extends StatefulWidget {
+  const SigninScreen({super.key, required this.title});
 
   final String title;
 
   @override
-  State<SigninPage> createState() => _SigninPageState();
+  State<SigninScreen> createState() => _SigninScreenState();
 }
 
-class _SigninPageState extends State<SigninPage> {
+class _SigninScreenState extends State<SigninScreen> {
   User? _firebaseUser;
   StreamSubscription<User?>? _authSubscription;
 
@@ -42,7 +43,7 @@ class _SigninPageState extends State<SigninPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary.withOpacity(0.7),
         title: Text(widget.title),
         actions: [
           IconButton(
@@ -98,12 +99,6 @@ class _SigninPageState extends State<SigninPage> {
                   const SizedBox(height: 12),
                 ],
 
-                // const SizedBox(height: 12),
-                // TextField(
-                //   decoration: const InputDecoration(labelText: 'Username'),
-                // ),
-                // const SizedBox(height: 12),
-                // const PasswordTextField(),
 
                 const SizedBox(height: 16),
 
@@ -125,6 +120,8 @@ class _SigninPageState extends State<SigninPage> {
                   },
                   child: const Text('Back'),
                 ),
+                const SizedBox(height: 80),
+                const FooterWidget(),
               ],
             ),
           ),
@@ -134,32 +131,3 @@ class _SigninPageState extends State<SigninPage> {
   }
 }
 
-class PasswordTextField extends StatefulWidget {
-  const PasswordTextField({super.key});
-
-  @override
-  State<PasswordTextField> createState() => _PasswordTextFieldState();
-}
-
-class _PasswordTextFieldState extends State<PasswordTextField> {
-  bool _obscureText = true;
-
-  @override
-  Widget build(BuildContext context) {
-    return TextField(
-      obscureText: _obscureText,
-      decoration: InputDecoration(
-        labelText: 'Password',
-        hintText: 'Enter your password',
-        suffixIcon: IconButton(
-          icon: Icon(_obscureText ? Icons.visibility_off : Icons.visibility),
-          onPressed: () {
-            setState(() {
-              _obscureText = !_obscureText;
-            });
-          },
-        ),
-      ),
-    );
-  }
-}

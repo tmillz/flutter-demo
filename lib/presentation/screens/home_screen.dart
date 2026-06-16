@@ -5,28 +5,21 @@ import 'package:go_router/go_router.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:google_fonts/google_fonts.dart';
 import '../../data/services/firebase_auth_service.dart';
 import '../../data/services/theme_service.dart';
 import '../../data/services/firestore_service.dart';
 import '../../data/models/post.dart';
 import '../widgets/post_card.dart';
+import '../widgets/footer_widget.dart';
 
-class HomePage extends StatefulWidget {
-  const HomePage({super.key, required this.title});
-
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
+class HomeScreen extends StatefulWidget {
+  const HomeScreen({super.key, required this.title});
 
   final String title;
 
   @override
-  State<HomePage> createState() => _HomePageState();
+  State<HomeScreen> createState() => _HomeScreenState();
 }
 
 class _CounterSection extends StatefulWidget {
@@ -104,7 +97,7 @@ class _PostsFeed extends StatelessWidget {
   }
 }
 
-class _HomePageState extends State<HomePage> {
+class _HomeScreenState extends State<HomeScreen> {
   User? _firebaseUser;
   StreamSubscription<User?>? _authSubscription;
   String? _dadJoke;
@@ -145,8 +138,7 @@ class _HomePageState extends State<HomePage> {
         }
       }
     } catch (e) {
-      // ignore: avoid_print
-      print('Failed to fetch dad joke: $e');
+      debugPrint('Failed to fetch dad joke: $e');
     }
   }
 
@@ -158,17 +150,28 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary.withOpacity(0.7),
         centerTitle: true,
-        title: Text(widget.title),
+        title: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              'tmillz',
+              style: GoogleFonts.quicksand(
+                fontWeight: FontWeight.bold,
+                fontSize: 26,
+              ),
+            ),
+            Text(
+              'Ideas in motion',
+              style: GoogleFonts.quicksand(
+                fontSize: 14,
+              ),
+            ),
+          ],
+        ),
         actions: [
           IconButton(
             tooltip: 'Toggle theme',
@@ -247,15 +250,45 @@ class _HomePageState extends State<HomePage> {
                   const SizedBox(height: 24),
                   if (_dadJoke != null) ...[
                     const SizedBox(height: 24),
-                    Text(
-                      _dadJoke!,
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(
-                        fontStyle: FontStyle.italic,
+                    Card(
+                      margin: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Column(
+                          children: [
+                            Row(
+                              children: [
+                                const Text(
+                                  '😂',
+                                  style: TextStyle(fontSize: 24),
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Text(
+                                    _dadJoke!,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 8),
+                            Align(
+                              alignment: Alignment.centerRight,
+                              child: Text(
+                                'Powered by icanhazdadjokes',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w500,
+                                  color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ],
                   const SizedBox(height: 80),
+                  const FooterWidget(),
                 ],
               ),
             ),
@@ -263,8 +296,14 @@ class _HomePageState extends State<HomePage> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => _counterKey.currentState?._incrementCounter(),
-        tooltip: 'Increment',
+        onPressed: () {
+          if (_isAdmin) {
+            context.push('/new-post');
+          } else {
+            _counterKey.currentState?._incrementCounter();
+          }
+        },
+        tooltip: 'add',
         child: const Icon(Icons.add),
       ),
     );
