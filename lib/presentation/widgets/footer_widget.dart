@@ -45,9 +45,14 @@ class _FooterLink extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () async {
-        final uri = Uri.parse(url);
-        if (await canLaunchUrl(uri)) {
-          await launchUrl(uri, mode: LaunchMode.platformDefault);
+        bool launched = await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
+        if (!launched) {
+          // Handle the case where URL launch fails
+          if (context.mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Failed to open: $url')),
+            );
+          }
         }
       },
       child: Text(
