@@ -29,7 +29,7 @@ class FirestoreService {
 
   // Add a new post (admin only - will be enforced by Firestore rules)
   static Future<void> addPost(Post post) async {
-    await _postsCollection.doc(post.id).set(post.toMap());
+    await _postsCollection.add(post.toMap());
   }
 
   // Add a reaction to a post

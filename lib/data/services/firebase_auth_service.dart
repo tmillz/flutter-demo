@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:flutter/foundation.dart' show kDebugMode, kIsWeb;
+import 'package:flutter/foundation.dart' show kDebugMode, kIsWeb, debugPrint;
 
 class FirebaseAuthService {
   static final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -56,28 +56,24 @@ class FirebaseAuthService {
   /// Signs out the current user from both Firebase Auth and Google Sign-In.
   /// Handles errors gracefully and doesn't crash even if sign-out encounters issues.
   static Future<void> signOut() async {
-    // ignore: avoid_print
-    print('Signing out user...');
+    debugPrint('Signing out user...');
 
     try {
       if (kDebugMode) {
-        print('Current user before sign-out: ${_auth.currentUser}');
+        debugPrint('Current user before sign-out: ${_auth.currentUser}');
       }
       // Attempt to sign out from Firebase Auth with timeout
       await _auth.signOut().timeout(
         const Duration(seconds: 5),
         onTimeout: () {
-          // ignore: avoid_print
-          print('⚠ Firebase Auth sign-out timed out');
+          debugPrint('⚠ Firebase Auth sign-out timed out');
           throw TimeoutException('signOut timed out');
         },
       );
-      // ignore: avoid_print
-      print('✓ Firebase Auth signed out');
+      debugPrint('✓ Firebase Auth signed out');
     } catch (e) {
       // Log but don't crash - Firebase Auth sign-out may fail in certain conditions
-      // ignore: avoid_print
-      print('⚠ Firebase Auth sign-out error: $e');
+      debugPrint('⚠ Firebase Auth sign-out error: $e');
     }
 
     // Only attempt Google Sign-In sign-out on mobile (not web)
@@ -85,16 +81,13 @@ class FirebaseAuthService {
     if (!kIsWeb) {
       try {
         await _googleSignIn.signOut();
-        // ignore: avoid_print
-        print('✓ Google Sign-In signed out');
+        debugPrint('✓ Google Sign-In signed out');
       } catch (e) {
         // Log but don't crash - Google Sign-In sign-out is secondary
-        // ignore: avoid_print
-        print('⚠ Google Sign-In sign-out error: $e');
+        debugPrint('⚠ Google Sign-In sign-out error: $e');
       }
     }
 
-    // ignore: avoid_print
-    print('Sign-out complete');
+    debugPrint('Sign-out complete');
   }
 }
