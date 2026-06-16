@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -23,6 +25,7 @@ class PostCard extends StatefulWidget {
 class _PostCardState extends State<PostCard> {
   final List<Reaction> _reactions = [];
   final Set<String> _userReactions = {};
+  StreamSubscription<List<Reaction>>? _reactionsSubscription;
 
   @override
   void initState() {
@@ -30,8 +33,14 @@ class _PostCardState extends State<PostCard> {
     _listenToReactions();
   }
 
+  @override
+  void dispose() {
+    _reactionsSubscription?.cancel();
+    super.dispose();
+  }
+
   void _listenToReactions() {
-    FirestoreService.getReactionsForPost(widget.post.id).listen((reactions) {
+    _reactionsSubscription = FirestoreService.getReactionsForPost(widget.post.id).listen((reactions) {
       if (mounted) {
         setState(() {
           _reactions.clear();

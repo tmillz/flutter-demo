@@ -10,23 +10,15 @@ import '../../data/services/theme_service.dart';
 import '../../data/services/firestore_service.dart';
 import '../../data/models/post.dart';
 import '../widgets/post_card.dart';
+import '../widgets/footer_widget.dart';
 
-class HomePage extends StatefulWidget {
-  const HomePage({super.key, required this.title});
-
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
+class HomeScreen extends StatefulWidget {
+  const HomeScreen({super.key, required this.title});
 
   final String title;
 
   @override
-  State<HomePage> createState() => _HomePageState();
+  State<HomeScreen> createState() => _HomeScreenState();
 }
 
 class _CounterSection extends StatefulWidget {
@@ -49,13 +41,8 @@ class _CounterSectionState extends State<_CounterSection> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        const Text(
-          'You have pushed the button this many times:',
-          textAlign: TextAlign.center,
-        ),
         Text(
-          '$_counter',
-          style: Theme.of(context).textTheme.headlineMedium,
+          'You have pushed the button $_counter times!',
           textAlign: TextAlign.center,
         ),
       ],
@@ -104,7 +91,7 @@ class _PostsFeed extends StatelessWidget {
   }
 }
 
-class _HomePageState extends State<HomePage> {
+class _HomeScreenState extends State<HomeScreen> {
   User? _firebaseUser;
   StreamSubscription<User?>? _authSubscription;
   String? _dadJoke;
@@ -145,8 +132,7 @@ class _HomePageState extends State<HomePage> {
         }
       }
     } catch (e) {
-      // ignore: avoid_print
-      print('Failed to fetch dad joke: $e');
+      debugPrint('Failed to fetch dad joke: $e');
     }
   }
 
@@ -158,17 +144,28 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary.withValues(alpha: 0.7),
         centerTitle: true,
-        title: Text(widget.title),
+        title: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              'tmillz',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 26,
+              ),
+            ),
+            Text(
+              'Ideas in motion',
+              style: TextStyle(
+                fontSize: 14,
+              ),
+            ),
+          ],
+        ),
         actions: [
           IconButton(
             tooltip: 'Toggle theme',
@@ -227,7 +224,7 @@ class _HomePageState extends State<HomePage> {
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 24.0),
             child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 480),
+              constraints: const BoxConstraints(maxWidth: 700),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
@@ -237,25 +234,97 @@ class _HomePageState extends State<HomePage> {
                   const SizedBox(height: 12),
                   const Divider(),
                   const SizedBox(height: 16),
+                  SizedBox(
+                    width: double.infinity,
+                    child: Card(
+                      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                          Text(
+                            'About:',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            'This website is for sharing ideas and design with Flutter',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontStyle: FontStyle.italic,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  ),
+                  if (_dadJoke != null) ...[
+                    const SizedBox(height: 24),
+                    Card(
+                      margin: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                const Text(
+                                  '😂',
+                                  style: TextStyle(fontSize: 24),
+                                ),
+                                const SizedBox(width: 12),
+                                Text(
+                                  'Dad joke of the day:',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              _dadJoke!,
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontStyle: FontStyle.italic,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Align(
+                              alignment: Alignment.centerRight,
+                              child: Text(
+                                'Powered by icanhazdadjokes',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w500,
+                                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                  const SizedBox(height: 16),
                   const Text(
-                    'Posts Feed',
+                    'Posts',
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 12),
                   _PostsFeed(isAdmin: _isAdmin),
                   const SizedBox(height: 24),
-                  if (_dadJoke != null) ...[
-                    const SizedBox(height: 24),
-                    Text(
-                      _dadJoke!,
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(
-                        fontStyle: FontStyle.italic,
-                      ),
-                    ),
-                  ],
                   const SizedBox(height: 80),
+                  const FooterWidget(),
                 ],
               ),
             ),
@@ -263,8 +332,14 @@ class _HomePageState extends State<HomePage> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => _counterKey.currentState?._incrementCounter(),
-        tooltip: 'Increment',
+        onPressed: () {
+          if (_isAdmin) {
+            context.push('/new-post');
+          } else {
+            _counterKey.currentState?._incrementCounter();
+          }
+        },
+        tooltip: 'add',
         child: const Icon(Icons.add),
       ),
     );
