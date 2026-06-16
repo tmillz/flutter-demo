@@ -28,6 +28,19 @@ final GoRouter _router = GoRouter(
       builder: (context, state) => const NewPostScreen(),
     ),
   ],
+  redirect: (context, state) {
+    final adminEmail = 'terrymil1981@gmail.com';
+    final user = FirebaseAuth.instance.currentUser;
+    
+    // Protect /new-post route - only admin can access
+    if (state.matchedLocation == '/new-post') {
+      if (user == null || user.email != adminEmail) {
+        return '/';
+      }
+    }
+    
+    return null;
+  },
 );
 
 Future<void> main() async {
@@ -82,12 +95,18 @@ class _MyAppState extends State<MyApp> {
   }
 
   bool _isDarkMode(ThemeMode themeMode) {
-    return themeMode == ThemeMode.dark ||
-           (themeMode == ThemeMode.system &&
-            MediaQuery.of(context).platformBrightness == Brightness.dark);
+    if (!mounted) return false;
+    try {
+      return themeMode == ThemeMode.dark ||
+             (themeMode == ThemeMode.system &&
+              MediaQuery.of(context).platformBrightness == Brightness.dark);
+    } catch (e) {
+      return false;
+    }
   }
 
   void _onThemeChanged() {
+    if (!mounted) return;
     final themeMode = ThemeService.notifier.value;
     _backgroundGame?.updateTheme(_isDarkMode(themeMode));
   }
@@ -125,7 +144,7 @@ class _MyAppState extends State<MyApp> {
             ),
             // App content
             MaterialApp.router(
-              title: 'Demo',
+              title: 'tmillz',
               routerConfig: _router,
               themeMode: themeMode,
               theme: ThemeData.from(

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
 import '../../data/services/firestore_service.dart';
 import '../../data/models/post.dart';
@@ -17,6 +16,7 @@ class _NewPostScreenState extends State<NewPostScreen> {
   final _contentController = TextEditingController();
   final _embedUrlController = TextEditingController();
   bool _isSubmitting = false;
+  final String _adminEmail = 'terrymil1981@gmail.com';
 
   @override
   void dispose() {
@@ -33,6 +33,17 @@ class _NewPostScreenState extends State<NewPostScreen> {
     try {
       final user = FirebaseAuth.instance.currentUser;
       if (user == null) return;
+
+      // Check if user is admin
+      if (user.email != _adminEmail) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Only admin can create posts')),
+          );
+          context.pop();
+        }
+        return;
+      }
 
       final post = Post(
         createdAt: DateTime.now(),
@@ -70,7 +81,7 @@ class _NewPostScreenState extends State<NewPostScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary.withOpacity(0.7),
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary.withValues(alpha: 0.7),
         title: Text(
           'New Post',
         ),
@@ -81,7 +92,7 @@ class _NewPostScreenState extends State<NewPostScreen> {
               end: Alignment.bottomCenter,
               colors: [
                 Theme.of(context).colorScheme.inversePrimary,
-                Theme.of(context).colorScheme.inversePrimary.withOpacity(0.0),
+                Theme.of(context).colorScheme.inversePrimary.withValues(alpha: 0.0),
               ],
             ),
           ),
@@ -96,11 +107,12 @@ class _NewPostScreenState extends State<NewPostScreen> {
             children: [
               TextFormField(
                 controller: _contentController,
-                maxLines: 10,
-                decoration: const InputDecoration(
+                maxLines: 5,
+                decoration: InputDecoration(
                   labelText: 'Post Content',
                   hintText: 'What\'s on your mind?',
-                  //border: OutlineInputBorder(),
+                  filled: true,
+                  fillColor: Theme.of(context).cardColor,
                 ),
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
@@ -115,7 +127,8 @@ class _NewPostScreenState extends State<NewPostScreen> {
                 decoration: InputDecoration(
                   labelText: 'Embed URL (optional)',
                   hintText: 'https://example.com',
-                  fillColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1),
+                  filled: true,
+                  fillColor: Theme.of(context).cardColor,
                 ),
                 validator: (value) {
                   if (value != null && value.trim().isNotEmpty) {

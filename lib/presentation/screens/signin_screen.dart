@@ -43,7 +43,7 @@ class _SigninScreenState extends State<SigninScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary.withOpacity(0.7),
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary.withValues(alpha: 0.7),
         title: Text(widget.title),
         actions: [
           IconButton(

@@ -59,8 +59,8 @@ class SparkleComponent extends PositionComponent {
   @override
   void render(Canvas canvas) {
     final color = isDark
-        ? Colors.yellow.withOpacity(_opacity * 0.7)
-        : Colors.green.withOpacity(_opacity * 0.7);
+        ? Colors.yellow.withValues(alpha: _opacity * 0.7)
+        : Colors.green.withValues(alpha: _opacity * 0.7);
 
     final paint = Paint()
       ..color = color

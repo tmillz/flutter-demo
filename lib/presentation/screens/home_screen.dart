@@ -5,7 +5,6 @@ import 'package:go_router/go_router.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'package:google_fonts/google_fonts.dart';
 import '../../data/services/firebase_auth_service.dart';
 import '../../data/services/theme_service.dart';
 import '../../data/services/firestore_service.dart';
@@ -42,13 +41,8 @@ class _CounterSectionState extends State<_CounterSection> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        const Text(
-          'You have pushed the button this many times:',
-          textAlign: TextAlign.center,
-        ),
         Text(
-          '$_counter',
-          style: Theme.of(context).textTheme.headlineMedium,
+          'You have pushed the button $_counter times!',
           textAlign: TextAlign.center,
         ),
       ],
@@ -152,21 +146,21 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary.withOpacity(0.7),
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary.withValues(alpha: 0.7),
         centerTitle: true,
         title: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
               'tmillz',
-              style: GoogleFonts.quicksand(
+              style: TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 26,
               ),
             ),
             Text(
               'Ideas in motion',
-              style: GoogleFonts.quicksand(
+              style: TextStyle(
                 fontSize: 14,
               ),
             ),
@@ -230,7 +224,7 @@ class _HomeScreenState extends State<HomeScreen> {
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 24.0),
             child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 480),
+              constraints: const BoxConstraints(maxWidth: 700),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
@@ -240,14 +234,36 @@ class _HomeScreenState extends State<HomeScreen> {
                   const SizedBox(height: 12),
                   const Divider(),
                   const SizedBox(height: 16),
-                  const Text(
-                    'Posts Feed',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                    textAlign: TextAlign.center,
+                  SizedBox(
+                    width: double.infinity,
+                    child: Card(
+                      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                          Text(
+                            'About:',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            'This website is for sharing ideas and design with Flutter',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontStyle: FontStyle.italic,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
-                  const SizedBox(height: 12),
-                  _PostsFeed(isAdmin: _isAdmin),
-                  const SizedBox(height: 24),
+                  ),
                   if (_dadJoke != null) ...[
                     const SizedBox(height: 24),
                     Card(
@@ -255,6 +271,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       child: Padding(
                         padding: const EdgeInsets.all(16),
                         child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Row(
                               children: [
@@ -263,12 +280,22 @@ class _HomeScreenState extends State<HomeScreen> {
                                   style: TextStyle(fontSize: 24),
                                 ),
                                 const SizedBox(width: 12),
-                                Expanded(
-                                  child: Text(
-                                    _dadJoke!,
+                                Text(
+                                  'Dad joke of the day:',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
                                   ),
                                 ),
                               ],
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              _dadJoke!,
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontStyle: FontStyle.italic,
+                              ),
                             ),
                             const SizedBox(height: 8),
                             Align(
@@ -278,7 +305,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 style: TextStyle(
                                   fontSize: 12,
                                   fontWeight: FontWeight.w500,
-                                  color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+                                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
                                 ),
                               ),
                             ),
@@ -287,6 +314,15 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ),
                   ],
+                  const SizedBox(height: 16),
+                  const Text(
+                    'Posts',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 12),
+                  _PostsFeed(isAdmin: _isAdmin),
+                  const SizedBox(height: 24),
                   const SizedBox(height: 80),
                   const FooterWidget(),
                 ],

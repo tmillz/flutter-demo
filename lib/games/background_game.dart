@@ -20,11 +20,6 @@ class BackgroundGame extends FlameGame {
   }
 
   @override
-  void onGameResize(Vector2 size) {
-    super.onGameResize(size);
-  }
-
-  @override
   void render(Canvas canvas) {
     // Draw gradient background
     final gradient = LinearGradient(

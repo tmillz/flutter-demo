@@ -19,7 +19,7 @@ class FooterWidget extends StatelessWidget {
           Container(
             height: 16,
             width: 1,
-            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.3),
+            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.3),
           ),
           const SizedBox(width: 24),
           _FooterLink(
@@ -55,9 +55,9 @@ class _FooterLink extends StatelessWidget {
         style: TextStyle(
           fontSize: 12,
           fontWeight: FontWeight.w500,
-          color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
           decoration: TextDecoration.underline,
-          decorationColor: Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
+          decorationColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
         ),
       ),
     );
