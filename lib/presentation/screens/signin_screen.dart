@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../../data/services/theme_service.dart';
 import '../widgets/google_signin_button.dart';
 import '../widgets/footer_widget.dart';
@@ -43,8 +44,17 @@ class _SigninScreenState extends State<SigninScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary.withValues(alpha: 0.7),
-        title: Text(widget.title),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        centerTitle: true,
+        toolbarHeight: 80,
+        title: Text(
+          'Sign In',
+          style: GoogleFonts.orbitron(
+            fontWeight: FontWeight.bold,
+            fontSize: 36,
+          ),
+        ),
         actions: [
           IconButton(
             tooltip: 'Toggle theme',
@@ -115,6 +125,11 @@ class _SigninScreenState extends State<SigninScreen> {
                 const SizedBox(height: 12),
 
                 ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
                   onPressed: () {
                     if (mounted) context.pop();
                   },

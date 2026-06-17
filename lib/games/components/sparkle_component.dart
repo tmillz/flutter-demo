@@ -31,8 +31,8 @@ class SparkleComponent extends PositionComponent {
   }
 
   void _randomizeSpeed() {
-    _speedX = (_random.nextDouble() - 0.5) * 20;
-    _speedY = (_random.nextDouble() - 0.5) * 20;
+    _speedX = (_random.nextDouble() - 0.5) * 10; // Slower movement
+    _speedY = (_random.nextDouble() - 0.5) * 10; // Slower movement
   }
 
   @override
@@ -43,8 +43,8 @@ class SparkleComponent extends PositionComponent {
     position.x += _speedX * dt;
     position.y += _speedY * dt;
     
-    // Fade in and out
-    _opacity += _fadeDirection * dt * 0.5;
+    // Fade in and out (slower for longer life)
+    _opacity += _fadeDirection * dt * 0.3;
     if (_opacity >= 1.0) {
       _opacity = 1.0;
       _fadeDirection = -1.0;
@@ -59,7 +59,7 @@ class SparkleComponent extends PositionComponent {
   @override
   void render(Canvas canvas) {
     final color = isDark
-        ? Colors.yellow.withValues(alpha: _opacity * 0.7)
+        ? const Color.fromARGB(172, 255, 160, 59).withValues(alpha: _opacity * 0.7)
         : Colors.green.withValues(alpha: _opacity * 0.7);
 
     final paint = Paint()
