@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../../data/services/firestore_service.dart';
 import '../../data/models/post.dart';
 
@@ -81,20 +82,15 @@ class _NewPostScreenState extends State<NewPostScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary.withValues(alpha: 0.7),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        centerTitle: true,
+        toolbarHeight: 80,
         title: Text(
           'New Post',
-        ),
-        flexibleSpace: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [
-                Theme.of(context).colorScheme.inversePrimary,
-                Theme.of(context).colorScheme.inversePrimary.withValues(alpha: 0.0),
-              ],
-            ),
+          style: GoogleFonts.orbitron(
+            fontWeight: FontWeight.bold,
+            fontSize: 36,
           ),
         ),
       ),
@@ -148,6 +144,9 @@ class _NewPostScreenState extends State<NewPostScreen> {
                 onPressed: _isSubmitting ? null : _submitPost,
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
                 ),
                 child: _isSubmitting
                     ? const CircularProgressIndicator()

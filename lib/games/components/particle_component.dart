@@ -25,9 +25,9 @@ class ParticleComponent extends PositionComponent {
   }
 
   void _randomizeVelocity() {
-    _velocityX = (_random.nextDouble() - 0.5) * 100;
-    _velocityY = (_random.nextDouble() - 0.5) * 100;
-    _maxLife = 2.0 + _random.nextDouble() * 3.0;
+    _velocityX = (_random.nextDouble() - 0.5) * 50; // Slower movement
+    _velocityY = (_random.nextDouble() - 0.5) * 50; // Slower movement
+    _maxLife = 4.0 + _random.nextDouble() * 4.0; // Live longer (4-8 seconds)
     _life = _maxLife;
   }
 

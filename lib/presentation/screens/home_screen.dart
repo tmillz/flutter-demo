@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:google_fonts/google_fonts.dart';
 import '../../data/services/firebase_auth_service.dart';
 import '../../data/services/theme_service.dart';
 import '../../data/services/firestore_service.dart';
@@ -146,21 +147,24 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary.withValues(alpha: 0.7),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
         centerTitle: true,
+        toolbarHeight: 80,
         title: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              'tmillz',
-              style: TextStyle(
+              'Tmillz',
+              style: GoogleFonts.orbitron(
                 fontWeight: FontWeight.bold,
-                fontSize: 26,
+                //fontStyle: FontStyle.italic,
+                fontSize: 36,
               ),
             ),
             Text(
-              'Ideas in motion',
-              style: TextStyle(
+              'ideas in motion',
+              style: GoogleFonts.inter(
                 fontSize: 14,
               ),
             ),
@@ -222,7 +226,7 @@ class _HomeScreenState extends State<HomeScreen> {
       body: SingleChildScrollView(
         child: Center(
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24.0),
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 700),
               child: Column(
@@ -231,13 +235,14 @@ class _HomeScreenState extends State<HomeScreen> {
                 children: [
                   const SizedBox(height: 24),
                   _CounterSection(key: _counterKey),
-                  const SizedBox(height: 12),
-                  const Divider(),
                   const SizedBox(height: 16),
                   SizedBox(
                     width: double.infinity,
                     child: Card(
                       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
                       child: Padding(
                         padding: const EdgeInsets.all(16),
                         child: Column(
@@ -268,6 +273,9 @@ class _HomeScreenState extends State<HomeScreen> {
                     const SizedBox(height: 24),
                     Card(
                       margin: const EdgeInsets.symmetric(horizontal: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
                       child: Padding(
                         padding: const EdgeInsets.all(16),
                         child: Column(
@@ -332,6 +340,9 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
         onPressed: () {
           if (_isAdmin) {
             context.push('/new-post');

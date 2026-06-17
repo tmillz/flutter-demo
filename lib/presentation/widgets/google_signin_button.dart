@@ -13,6 +13,11 @@ class GoogleSignInButton extends StatelessWidget {
         return ElevatedButton.icon(
             icon: const Icon(Icons.login),
             label: const Text('Sign in with Google'),
+            style: ElevatedButton.styleFrom(
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                ),
+            ),
             onPressed: () async {
                 final cred = await FirebaseAuthService.signInWithGoogle();
                 if (cred != null) onSignedIn?.call();

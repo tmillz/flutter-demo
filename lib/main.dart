@@ -17,7 +17,7 @@ final GoRouter _router = GoRouter(
   routes: [
     GoRoute(
       path: '/',
-      builder: (context, state) => const HomeScreen(title: 'tmillz Ideas in motion'),
+      builder: (context, state) => const HomeScreen(title: 'tmillz'),
     ),
     GoRoute(
       path: '/signin',

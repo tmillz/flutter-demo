@@ -27,7 +27,7 @@ class BackgroundGame extends FlameGame {
       end: Alignment.bottomRight,
       colors: isDark
           ? [Color(0xFF1a1a2e), Color(0xFF16213e), Color(0xFF0f3460)]
-          : [Color(0xFF667eea), Color(0xFF764ba2), Color(0xFFf093fb)],
+          : [Color(0xFFffffff), Color(0xFFe8e8e8), Color(0xFFffcc80)],
       stops: const [0.0, 0.5, 1.0],
     );
 
