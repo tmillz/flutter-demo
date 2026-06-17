@@ -147,10 +147,8 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        //backgroundColor: Theme.of(context).colorScheme.inversePrimary.withValues(alpha: 0.7),
         backgroundColor: Colors.transparent,
         elevation: 0,
-        //backgroundColor: Color(0xFF101820),
         centerTitle: true,
         toolbarHeight: 80,
         title: Column(
