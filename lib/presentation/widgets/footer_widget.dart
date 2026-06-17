@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:url_launcher/url_launcher.dart';
+import 'package:web/web.dart' as web;
 
 class FooterWidget extends StatelessWidget {
   const FooterWidget({super.key});
@@ -45,13 +47,19 @@ class _FooterLink extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () async {
-        bool launched = await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
-        if (!launched) {
-          // Handle the case where URL launch fails
-          if (context.mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Failed to open: $url')),
-            );
+        if (kIsWeb) {
+          // Use package:web for web - works better in release builds
+          web.window.open(url, '_blank');
+        } else {
+          // Use url_launcher for mobile
+          bool launched = await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
+          if (!launched) {
+            // Handle the case where URL launch fails
+            if (context.mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('Failed to open: $url')),
+              );
+            }
           }
         }
       },
