@@ -6,6 +6,7 @@ import 'package:flutter_demo/presentation/screens/new_post_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart' show kDebugMode;
 import 'firebase_options.dart';
 import 'data/services/theme_service.dart';
@@ -60,6 +61,10 @@ Future<void> main() async {
       // Connect to Firestore emulator
       FirebaseFirestore.instance.useFirestoreEmulator('127.0.0.1', 8080);
       debugPrint('✓ Connected Firestore to emulator at 127.0.0.1:8080');
+      
+      // Connect to Storage emulator
+      FirebaseStorage.instance.useStorageEmulator('127.0.0.1', 9199);
+      debugPrint('✓ Connected Firebase Storage to emulator at 127.0.0.1:9199');
     } catch (e) {
       // If emulator is not running, the app will use production Firebase
       debugPrint('⚠ Firebase emulator not available: $e');
