@@ -80,12 +80,22 @@ class _PostsFeed extends StatelessWidget {
         }
 
         return Column(
-          children: posts.map((post) {
-            return PostCard(
-              post: post,
-              isAdmin: isAdmin,
-            );
-          }).toList(),
+          children: [
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16),
+              child: Text(
+                'Posts',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
+            ),
+            const SizedBox(height: 4),
+            ...posts.map((post) {
+              return PostCard(
+                post: post,
+                isAdmin: isAdmin,
+              );
+            }),
+          ],
         );
       },
     );
@@ -226,7 +236,7 @@ class _HomeScreenState extends State<HomeScreen> {
       body: SingleChildScrollView(
         child: Center(
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            padding: const EdgeInsets.symmetric(horizontal: 12.0),
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 700),
               child: Column(
@@ -281,6 +291,14 @@ class _HomeScreenState extends State<HomeScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
+                            Text(
+                              'Dad joke of the day:',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
                             Row(
                               children: [
                                 const Text(
@@ -288,22 +306,16 @@ class _HomeScreenState extends State<HomeScreen> {
                                   style: TextStyle(fontSize: 24),
                                 ),
                                 const SizedBox(width: 12),
-                                Text(
-                                  'Dad joke of the day:',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
+                                Expanded(
+                                  child: Text(
+                                    _dadJoke!,
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      fontStyle: FontStyle.italic,
+                                    ),
                                   ),
                                 ),
                               ],
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              _dadJoke!,
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontStyle: FontStyle.italic,
-                              ),
                             ),
                             const SizedBox(height: 8),
                             Align(
@@ -322,13 +334,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ),
                   ],
-                  const SizedBox(height: 16),
-                  const Text(
-                    'Posts',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 24),
                   _PostsFeed(isAdmin: _isAdmin),
                   const SizedBox(height: 24),
                   const SizedBox(height: 80),
