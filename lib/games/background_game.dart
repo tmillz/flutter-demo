@@ -1,5 +1,3 @@
-
-
 import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
 import 'components/particle_component.dart';
@@ -10,8 +8,8 @@ class BackgroundGame extends FlameGame {
   final List<ParticleComponent> _particles = [];
   final List<SparkleComponent> _sparkles = [];
 
-  static const int particleCount = 30;
-  static const int sparkleCount = 20;
+  static const int particleCount = 18;
+  static const int sparkleCount = 12;
 
   @override
   Future<void> onLoad() async {
@@ -32,8 +30,7 @@ class BackgroundGame extends FlameGame {
     );
 
     final rect = Rect.fromLTWH(0, 0, size.x, size.y);
-    final paint = Paint()
-      ..shader = gradient.createShader(rect);
+    final paint = Paint()..shader = gradient.createShader(rect);
     canvas.drawRect(rect, paint);
     super.render(canvas);
   }

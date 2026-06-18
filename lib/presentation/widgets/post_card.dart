@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../data/models/post.dart';
 import '../../data/models/reaction.dart';
 import '../../data/services/firestore_service.dart';
@@ -12,11 +11,7 @@ class PostCard extends StatefulWidget {
   final Post post;
   final bool isAdmin;
 
-  const PostCard({
-    super.key,
-    required this.post,
-    required this.isAdmin,
-  });
+  const PostCard({super.key, required this.post, required this.isAdmin});
 
   @override
   State<PostCard> createState() => _PostCardState();
@@ -40,31 +35,41 @@ class _PostCardState extends State<PostCard> {
   }
 
   void _listenToReactions() {
-    _reactionsSubscription = FirestoreService.getReactionsForPost(widget.post.id).listen((reactions) {
-      if (mounted) {
-        setState(() {
-          _reactions.clear();
-          _reactions.addAll(reactions);
-          _userReactions.clear();
-          final userId = FirebaseAuth.instance.currentUser?.uid;
-          if (userId != null) {
-            for (final reaction in reactions) {
-              if (reaction.userId == userId) {
-                _userReactions.add(reaction.emoji);
+    _reactionsSubscription =
+        FirestoreService.getReactionsForPost(widget.post.id).listen((
+          reactions,
+        ) {
+          if (mounted) {
+            setState(() {
+              _reactions.clear();
+              _reactions.addAll(reactions);
+              _userReactions.clear();
+              final userId = FirebaseAuth.instance.currentUser?.uid;
+              if (userId != null) {
+                for (final reaction in reactions) {
+                  if (reaction.userId == userId) {
+                    _userReactions.add(reaction.emoji);
+                  }
+                }
               }
-            }
+            });
           }
         });
-      }
-    });
   }
 
   Future<void> _toggleReaction(String emoji) async {
     final user = FirebaseAuth.instance.currentUser;
-    if (user == null) return;
+    if (user == null) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Sign in to add emoji reactions')),
+        );
+      }
+      return;
+    }
 
     final hasReacted = _userReactions.contains(emoji);
-    
+
     if (hasReacted) {
       // Find and remove the reaction
       final reactionToRemove = _reactions.firstWhere(
@@ -93,23 +98,35 @@ class _PostCardState extends State<PostCard> {
     return counts;
   }
 
+  TextStyle _emojiFallbackStyle({FontWeight? fontWeight}) {
+    return TextStyle(
+      fontWeight: fontWeight,
+      fontFamilyFallback: const [
+        'Apple Color Emoji',
+        'Segoe UI Emoji',
+        'Noto Color Emoji',
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final emojiCounts = _emojiCounts;
-    final user = FirebaseAuth.instance.currentUser;
+    final isNarrowScreen = MediaQuery.sizeOf(context).width < 600;
+    final cardHorizontalMargin = isNarrowScreen ? 8.0 : 16.0;
 
     return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(8),
+      margin: EdgeInsets.symmetric(
+        horizontal: cardHorizontalMargin,
+        vertical: 8,
       ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Author info
             Row(
               children: [
                 CircleAvatar(
@@ -139,11 +156,14 @@ class _PostCardState extends State<PostCard> {
                   ),
                 ),
                 if (widget.isAdmin)
-                  const Icon(Icons.admin_panel_settings, size: 20, color: Colors.blue),
+                  const Icon(
+                    Icons.admin_panel_settings,
+                    size: 20,
+                    color: Colors.blue,
+                  ),
               ],
             ),
             const SizedBox(height: 12),
-            // Post content
             Text(
               widget.post.content,
               style: Theme.of(context).textTheme.bodyLarge,
@@ -180,33 +200,35 @@ class _PostCardState extends State<PostCard> {
               ),
             ],
             const SizedBox(height: 12),
-            // Reactions section
-            if (user != null) ...[
-              const Divider(),
-              const SizedBox(height: 8),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: [
-                  Text('React: ', style: GoogleFonts.notoColorEmoji(fontWeight: FontWeight.bold)),
-                  ...['👍', '❤️', '😂', '😮', '😢', '🎉'].map((emoji) {
-                    final count = emojiCounts[emoji] ?? 0;
-                    final hasReacted = _userReactions.contains(emoji);
-                    return InkWell(
-                      onTap: () => _toggleReaction(emoji),
-                      child: Chip(
-                        label: Text(
-                          '$emoji $count',
-                          style: GoogleFonts.notoColorEmoji(),
-                        ),
-                        backgroundColor: hasReacted ? Colors.blue.withValues(alpha: 0.2) : null,
-                        side: hasReacted ? BorderSide(color: Colors.blue) : null,
+            const Divider(),
+            const SizedBox(height: 8),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                Text(
+                  'React: ',
+                  style: _emojiFallbackStyle(fontWeight: FontWeight.bold),
+                ),
+                ...['👍', '❤️', '😂', '😮', '😢', '🎉'].map((emoji) {
+                  final count = emojiCounts[emoji] ?? 0;
+                  final hasReacted = _userReactions.contains(emoji);
+                  return InkWell(
+                    onTap: () => _toggleReaction(emoji),
+                    child: Chip(
+                      label: Text(
+                        '$emoji $count',
+                        style: _emojiFallbackStyle(),
                       ),
-                    );
-                  }),
-                ],
-              ),
-            ],
+                      backgroundColor: hasReacted
+                          ? Colors.blue.withValues(alpha: 0.2)
+                          : null,
+                      side: hasReacted ? BorderSide(color: Colors.blue) : null,
+                    ),
+                  );
+                }),
+              ],
+            ),
           ],
         ),
       ),
@@ -216,7 +238,7 @@ class _PostCardState extends State<PostCard> {
   String _formatDate(DateTime date) {
     final now = DateTime.now();
     final difference = now.difference(date);
-    
+
     if (difference.inMinutes < 1) return 'Just now';
     if (difference.inMinutes < 60) return '${difference.inMinutes}m ago';
     if (difference.inHours < 24) return '${difference.inHours}h ago';

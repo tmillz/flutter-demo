@@ -3,25 +3,22 @@ import 'package:flutter/material.dart';
 import '../../data/services/firebase_auth_service.dart';
 
 class GoogleSignInButton extends StatelessWidget {
-    final String? webClientId;
-    final VoidCallback? onSignedIn;
+  final VoidCallback? onSignedIn;
 
-    const GoogleSignInButton({super.key, this.webClientId, this.onSignedIn});
+  const GoogleSignInButton({super.key, this.onSignedIn});
 
-    @override
-    Widget build(BuildContext context) {
-        return ElevatedButton.icon(
-            icon: const Icon(Icons.login),
-            label: const Text('Sign in with Google'),
-            style: ElevatedButton.styleFrom(
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                ),
-            ),
-            onPressed: () async {
-                final cred = await FirebaseAuthService.signInWithGoogle();
-                if (cred != null) onSignedIn?.call();
-            },
-        );
-    }
+  @override
+  Widget build(BuildContext context) {
+    return ElevatedButton.icon(
+      icon: const Icon(Icons.login),
+      label: const Text('Sign in with Google'),
+      style: ElevatedButton.styleFrom(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+      ),
+      onPressed: () async {
+        final cred = await FirebaseAuthService.signInWithGoogle();
+        if (cred != null) onSignedIn?.call();
+      },
+    );
+  }
 }

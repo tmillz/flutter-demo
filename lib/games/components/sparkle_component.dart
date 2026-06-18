@@ -3,16 +3,15 @@ import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
 
 class SparkleComponent extends PositionComponent {
-  SparkleComponent({
-    required this.isDark,
-  }) : super() {
+  SparkleComponent({required this.isDark}) : super() {
     _randomizeSize();
     _randomizeSpeed();
   }
 
   bool isDark;
   final Random _random = Random();
-  
+  Vector2 _gameSize = Vector2.zero();
+
   double _opacity = 0.0;
   double _fadeDirection = 1.0;
   double _speedX = 0.0;
@@ -21,9 +20,19 @@ class SparkleComponent extends PositionComponent {
 
   void _randomizePosition() {
     position = Vector2(
-      _random.nextDouble() * size.x,
-      _random.nextDouble() * size.y,
+      _random.nextDouble() * _gameSize.x,
+      _random.nextDouble() * (_gameSize.y * 0.25),
     );
+  }
+
+  @override
+  void onGameResize(Vector2 size) {
+    super.onGameResize(size);
+    _gameSize = size;
+    if (size.x <= 0 || size.y <= 0) {
+      return;
+    }
+    _randomizePosition();
   }
 
   void _randomizeSize() {
@@ -38,11 +47,11 @@ class SparkleComponent extends PositionComponent {
   @override
   void update(double dt) {
     super.update(dt);
-    
+
     // Move sparkle
     position.x += _speedX * dt;
     position.y += _speedY * dt;
-    
+
     // Fade in and out (slower for longer life)
     _opacity += _fadeDirection * dt * 0.3;
     if (_opacity >= 1.0) {
@@ -59,7 +68,12 @@ class SparkleComponent extends PositionComponent {
   @override
   void render(Canvas canvas) {
     final color = isDark
-        ? const Color.fromARGB(172, 255, 160, 59).withValues(alpha: _opacity * 0.7)
+        ? const Color.fromARGB(
+            172,
+            255,
+            160,
+            59,
+          ).withValues(alpha: _opacity * 0.7)
         : Colors.green.withValues(alpha: _opacity * 0.7);
 
     final paint = Paint()
@@ -67,11 +81,5 @@ class SparkleComponent extends PositionComponent {
       ..style = PaintingStyle.fill;
 
     canvas.drawCircle(Offset(position.x, position.y), _size, paint);
-  }
-
-  @override
-  void onMount() {
-    super.onMount();
-    _randomizePosition();
   }
 }

@@ -3,10 +3,10 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
-import '../../data/services/theme_service.dart';
 import '../widgets/google_signin_button.dart';
 import '../widgets/footer_widget.dart';
+import '../widgets/app_brand_title.dart';
+import '../widgets/theme_toggle_button.dart';
 
 class SigninScreen extends StatefulWidget {
   const SigninScreen({super.key, required this.title});
@@ -48,31 +48,11 @@ class _SigninScreenState extends State<SigninScreen> {
         elevation: 0,
         centerTitle: true,
         toolbarHeight: 80,
-        title: Text(
-          'Sign In',
-          style: GoogleFonts.orbitron(
-            fontWeight: FontWeight.bold,
-            fontSize: 36,
-          ),
+        title: const AppBrandTitle(
+          title: 'Sign In',
+          subtitle: 'create or continue',
         ),
-        actions: [
-          IconButton(
-            tooltip: 'Toggle theme',
-            icon: Builder(
-              builder: (c) {
-                final mode = ThemeService.notifier.value;
-                if (mode == ThemeMode.system) {
-                  return const Icon(Icons.brightness_auto);
-                }
-                if (mode == ThemeMode.light) {
-                  return const Icon(Icons.light_mode);
-                }
-                return const Icon(Icons.dark_mode);
-              },
-            ),
-            onPressed: () => ThemeService.cycleMode(),
-          ),
-        ],
+        actions: [const ThemeToggleButton()],
       ),
       body: Center(
         child: ConstrainedBox(
@@ -109,13 +89,10 @@ class _SigninScreenState extends State<SigninScreen> {
                   const SizedBox(height: 12),
                 ],
 
-
                 const SizedBox(height: 16),
 
                 // Simple cross-platform Google sign-in button.
                 GoogleSignInButton(
-                  webClientId:
-                      '48988735153-jtqjqe6ra09s4adkq3cusob9m3htvuv3.apps.googleusercontent.com',
                   onSignedIn: () {
                     if (!mounted) return;
                     GoRouter.of(context).go('/');
@@ -145,4 +122,3 @@ class _SigninScreenState extends State<SigninScreen> {
     );
   }
 }
-

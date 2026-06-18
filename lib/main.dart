@@ -32,14 +32,14 @@ final GoRouter _router = GoRouter(
   redirect: (context, state) {
     final adminEmail = 'terrymil1981@gmail.com';
     final user = FirebaseAuth.instance.currentUser;
-    
+
     // Protect /new-post route - only admin can access
     if (state.matchedLocation == '/new-post') {
       if (user == null || user.email != adminEmail) {
         return '/';
       }
     }
-    
+
     return null;
   },
 );
@@ -47,21 +47,21 @@ final GoRouter _router = GoRouter(
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  
+
   // Connect to local Firebase emulators when running in debug.
   if (kDebugMode) {
     try {
       // Add a small delay to ensure Firebase is fully initialized
       await Future.delayed(const Duration(milliseconds: 100));
-      
+
       // Connect to Auth emulator (only works if emulator is running)
       await FirebaseAuth.instance.useAuthEmulator('127.0.0.1', 9099);
       debugPrint('✓ Connected Firebase Auth to emulator at 127.0.0.1:9099');
-      
+
       // Connect to Firestore emulator
       FirebaseFirestore.instance.useFirestoreEmulator('127.0.0.1', 8080);
       debugPrint('✓ Connected Firestore to emulator at 127.0.0.1:8080');
-      
+
       // Connect to Storage emulator
       FirebaseStorage.instance.useStorageEmulator('127.0.0.1', 9199);
       debugPrint('✓ Connected Firebase Storage to emulator at 127.0.0.1:9199');
@@ -71,7 +71,7 @@ Future<void> main() async {
       // Continue with production Firebase instead of crashing
     }
   }
-  
+
   await ThemeService.initialize();
   runApp(const MyApp());
 }
@@ -85,12 +85,15 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   BackgroundGame? _backgroundGame;
+  late final Widget _backgroundWidget;
 
   @override
   void initState() {
     super.initState();
     // Listen to theme changes
     ThemeService.notifier.addListener(_onThemeChanged);
+    _backgroundGame = BackgroundGame();
+    _backgroundWidget = GameWidget(game: _backgroundGame!);
   }
 
   @override
@@ -103,7 +106,7 @@ class _MyAppState extends State<MyApp> {
     if (!mounted) return false;
     try {
       return themeMode == ThemeMode.dark ||
-             (themeMode == ThemeMode.system &&
+          (themeMode == ThemeMode.system &&
               MediaQuery.of(context).platformBrightness == Brightness.dark);
     } catch (e) {
       return false;
@@ -114,15 +117,6 @@ class _MyAppState extends State<MyApp> {
     if (!mounted) return;
     final themeMode = ThemeService.notifier.value;
     _backgroundGame?.updateTheme(_isDarkMode(themeMode));
-  }
-
-  BackgroundGame _createBackgroundGame() {
-    final game = BackgroundGame();
-    _backgroundGame = game;
-    // Set initial theme
-    final themeMode = ThemeService.notifier.value;
-    game.updateTheme(_isDarkMode(themeMode));
-    return game;
   }
 
   @override
@@ -142,11 +136,7 @@ class _MyAppState extends State<MyApp> {
           textDirection: TextDirection.ltr,
           children: [
             // Flame game background
-            Positioned.fill(
-              child: GameWidget.controlled(
-                gameFactory: _createBackgroundGame,
-              ),
-            ),
+            Positioned.fill(child: _backgroundWidget),
             // App content
             MaterialApp.router(
               title: 'tmillz',

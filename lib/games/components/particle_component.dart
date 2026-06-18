@@ -3,15 +3,14 @@ import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
 
 class ParticleComponent extends PositionComponent {
-  ParticleComponent({
-    required this.isDark,
-  }) : super() {
+  ParticleComponent({required this.isDark}) : super() {
     _randomizeVelocity();
   }
 
   bool isDark;
   final Random _random = Random();
-  
+  Vector2 _gameSize = Vector2.zero();
+
   double _velocityX = 0.0;
   double _velocityY = 0.0;
   double _life = 0.0;
@@ -19,9 +18,19 @@ class ParticleComponent extends PositionComponent {
 
   void _randomizePosition() {
     position = Vector2(
-      size.x + _random.nextDouble() * 100, // Start from right side
-      _random.nextDouble() * size.y * 0.3, // Top 30% of screen
+      _random.nextDouble() * _gameSize.x,
+      _random.nextDouble() * (_gameSize.y * 0.25),
     );
+  }
+
+  @override
+  void onGameResize(Vector2 size) {
+    super.onGameResize(size);
+    _gameSize = size;
+    if (size.x <= 0 || size.y <= 0) {
+      return;
+    }
+    _randomizePosition();
   }
 
   void _randomizeVelocity() {
@@ -34,14 +43,14 @@ class ParticleComponent extends PositionComponent {
   @override
   void update(double dt) {
     super.update(dt);
-    
+
     // Move particle
     position.x += _velocityX * dt;
     position.y += _velocityY * dt;
-    
+
     // Decrease life
     _life -= dt;
-    
+
     // Reset when life ends
     if (_life <= 0) {
       _randomizePosition();
@@ -61,11 +70,5 @@ class ParticleComponent extends PositionComponent {
       ..style = PaintingStyle.fill;
 
     canvas.drawCircle(Offset(position.x, position.y), 6.0, paint);
-  }
-
-  @override
-  void onMount() {
-    super.onMount();
-    _randomizePosition();
   }
 }

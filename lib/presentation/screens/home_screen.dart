@@ -5,13 +5,13 @@ import 'package:go_router/go_router.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'package:google_fonts/google_fonts.dart';
 import '../../data/services/firebase_auth_service.dart';
-import '../../data/services/theme_service.dart';
 import '../../data/services/firestore_service.dart';
 import '../../data/models/post.dart';
 import '../widgets/post_card.dart';
 import '../widgets/footer_widget.dart';
+import '../widgets/app_brand_title.dart';
+import '../widgets/theme_toggle_button.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key, required this.title});
@@ -53,8 +53,9 @@ class _CounterSectionState extends State<_CounterSection> {
 
 class _PostsFeed extends StatelessWidget {
   final bool isAdmin;
+  final double horizontalInset;
 
-  const _PostsFeed({required this.isAdmin});
+  const _PostsFeed({required this.isAdmin, required this.horizontalInset});
 
   @override
   Widget build(BuildContext context) {
@@ -66,34 +67,27 @@ class _PostsFeed extends StatelessWidget {
         }
 
         if (snapshot.hasError) {
-          return Center(
-            child: Text('Error: ${snapshot.error}'),
-          );
+          return Center(child: Text('Error: ${snapshot.error}'));
         }
 
         final posts = snapshot.data ?? [];
 
         if (posts.isEmpty) {
-          return const Center(
-            child: Text('No posts yet'),
-          );
+          return const Center(child: Text('No posts yet'));
         }
 
         return Column(
           children: [
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16),
-              child: Text(
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: horizontalInset),
+              child: const Text(
                 'Posts',
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               ),
             ),
             const SizedBox(height: 4),
             ...posts.map((post) {
-              return PostCard(
-                post: post,
-                isAdmin: isAdmin,
-              );
+              return PostCard(post: post, isAdmin: isAdmin);
             }),
           ],
         );
@@ -107,7 +101,8 @@ class _HomeScreenState extends State<HomeScreen> {
   StreamSubscription<User?>? _authSubscription;
   String? _dadJoke;
   final String _adminEmail = 'terrymil1981@gmail.com';
-  final GlobalKey<_CounterSectionState> _counterKey = GlobalKey<_CounterSectionState>();
+  final GlobalKey<_CounterSectionState> _counterKey =
+      GlobalKey<_CounterSectionState>();
 
   bool get _isAdmin {
     final user = FirebaseAuth.instance.currentUser;
@@ -155,48 +150,19 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isNarrowScreen = MediaQuery.sizeOf(context).width < 600;
+    final pageHorizontalPadding = isNarrowScreen ? 6.0 : 12.0;
+    final cardHorizontalInset = isNarrowScreen ? 8.0 : 16.0;
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         centerTitle: true,
         toolbarHeight: 80,
-        title: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              'Tmillz',
-              style: GoogleFonts.orbitron(
-                fontWeight: FontWeight.bold,
-                //fontStyle: FontStyle.italic,
-                fontSize: 36,
-              ),
-            ),
-            Text(
-              'ideas in motion',
-              style: GoogleFonts.inter(
-                fontSize: 14,
-              ),
-            ),
-          ],
-        ),
+        title: const AppBrandTitle(),
         actions: [
-          IconButton(
-            tooltip: 'Toggle theme',
-            icon: Builder(
-              builder: (context) {
-                final mode = ThemeService.notifier.value;
-                if (mode == ThemeMode.system) {
-                  return const Icon(Icons.brightness_auto);
-                }
-                if (mode == ThemeMode.light) {
-                  return const Icon(Icons.light_mode);
-                }
-                return const Icon(Icons.dark_mode);
-              },
-            ),
-            onPressed: () => ThemeService.cycleMode(),
-          ),
+          const ThemeToggleButton(),
           Builder(
             builder: (context) {
               final signedIn = _firebaseUser != null;
@@ -234,121 +200,141 @@ class _HomeScreenState extends State<HomeScreen> {
         ],
       ),
       body: SingleChildScrollView(
-        child: Center(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12.0),
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 700),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  const SizedBox(height: 24),
-                  _CounterSection(key: _counterKey),
-                  const SizedBox(height: 16),
-                  SizedBox(
-                    width: double.infinity,
-                    child: Card(
-                      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                          Text(
-                            'About:',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            'This website is for sharing ideas and design with Flutter',
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontStyle: FontStyle.italic,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
+        child: LayoutBuilder(
+          builder: (context, _) {
+            final viewportHeight = MediaQuery.sizeOf(context).height;
+
+            return ConstrainedBox(
+              constraints: BoxConstraints(minHeight: viewportHeight),
+              child: Center(
+                child: Padding(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: pageHorizontalPadding,
                   ),
-                  ),
-                  if (_dadJoke != null) ...[
-                    const SizedBox(height: 24),
-                    Card(
-                      margin: const EdgeInsets.symmetric(horizontal: 16),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Dad joke of the day:',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                              ),
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 700),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        const SizedBox(height: 24),
+                        _CounterSection(key: _counterKey),
+                        const SizedBox(height: 16),
+                        SizedBox(
+                          width: double.infinity,
+                          child: Card(
+                            margin: EdgeInsets.symmetric(
+                              horizontal: cardHorizontalInset,
+                              vertical: 8,
                             ),
-                            const SizedBox(height: 8),
-                            Row(
-                              children: [
-                                const Text(
-                                  '😂',
-                                  style: TextStyle(fontSize: 24),
-                                ),
-                                const SizedBox(width: 12),
-                                Expanded(
-                                  child: Text(
-                                    _dadJoke!,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.all(16),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    'About:',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    'This website is for sharing ideas and design with Flutter',
                                     style: TextStyle(
                                       fontSize: 14,
                                       fontStyle: FontStyle.italic,
                                     ),
                                   ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 8),
-                            Align(
-                              alignment: Alignment.centerRight,
-                              child: Text(
-                                'Powered by icanhazdadjokes',
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w500,
-                                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
-                                ),
+                                ],
                               ),
                             ),
-                          ],
+                          ),
                         ),
-                      ),
+                        if (_dadJoke != null) ...[
+                          const SizedBox(height: 24),
+                          Card(
+                            margin: EdgeInsets.symmetric(
+                              horizontal: cardHorizontalInset,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.all(16),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Dad joke of the day:',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Row(
+                                    children: [
+                                      const Text(
+                                        '😂',
+                                        style: TextStyle(fontSize: 24),
+                                      ),
+                                      const SizedBox(width: 12),
+                                      Expanded(
+                                        child: Text(
+                                          _dadJoke!,
+                                          style: TextStyle(
+                                            fontSize: 14,
+                                            fontStyle: FontStyle.italic,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Align(
+                                    alignment: Alignment.centerRight,
+                                    child: Text(
+                                      'Powered by icanhazdadjokes',
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w500,
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .onSurface
+                                            .withValues(alpha: 0.7),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                        const SizedBox(height: 24),
+                        _PostsFeed(
+                          isAdmin: _isAdmin,
+                          horizontalInset: cardHorizontalInset,
+                        ),
+                        const SizedBox(height: 24),
+                        const SizedBox(height: 80),
+                        const FooterWidget(),
+                      ],
                     ),
-                  ],
-                  const SizedBox(height: 24),
-                  _PostsFeed(isAdmin: _isAdmin),
-                  const SizedBox(height: 24),
-                  const SizedBox(height: 80),
-                  const FooterWidget(),
-                ],
+                  ),
+                ),
               ),
-            ),
-          ),
+            );
+          },
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         onPressed: () {
           if (_isAdmin) {
             context.push('/new-post');
