@@ -170,34 +170,7 @@ class _PostCardState extends State<PostCard> {
             ),
             if (widget.post.embedUrl != null) ...[
               const SizedBox(height: 12),
-              ClipRRect(
-                borderRadius: BorderRadius.circular(8),
-                child: Image.network(
-                  widget.post.embedUrl!,
-                  height: 200,
-                  width: double.infinity,
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) {
-                    return Container(
-                      height: 200,
-                      decoration: BoxDecoration(
-                        color: Colors.grey[200],
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Center(
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Text(
-                            'Embed: ${widget.post.embedUrl}',
-                            style: Theme.of(context).textTheme.bodySmall,
-                            textAlign: TextAlign.center,
-                          ),
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ),
+              _EmbedWidget(url: widget.post.embedUrl!),
             ],
             const SizedBox(height: 12),
             const Divider(),
@@ -244,5 +217,86 @@ class _PostCardState extends State<PostCard> {
     if (difference.inHours < 24) return '${difference.inHours}h ago';
     if (difference.inDays < 7) return '${difference.inDays}d ago';
     return '${date.month}/${date.day}/${date.year}';
+  }
+}
+
+/// Renders an embed URL as an image if it looks like one, otherwise as a
+/// tappable link. Falls back gracefully if the image fails to load.
+class _EmbedWidget extends StatelessWidget {
+  const _EmbedWidget({required this.url});
+
+  final String url;
+
+  bool get _looksLikeImage {
+    final lower = url.toLowerCase();
+    // Firebase Storage download URLs contain "firebasestorage.googleapis.com"
+    // or "firebasestorage.app"; also accept common image extensions.
+    if (lower.contains('firebasestorage.googleapis.com')) return true;
+    if (lower.contains('firebasestorage.app')) return true;
+    return lower.endsWith('.jpg') ||
+        lower.endsWith('.jpeg') ||
+        lower.endsWith('.png') ||
+        lower.endsWith('.gif') ||
+        lower.endsWith('.webp');
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_looksLikeImage) {
+      return ClipRRect(
+        borderRadius: BorderRadius.circular(8),
+        child: Image.network(
+          url,
+          width: double.infinity,
+          fit: BoxFit.cover,
+          errorBuilder: (context, error, _) => _LinkFallback(url: url),
+        ),
+      );
+    }
+    return _LinkFallback(url: url);
+  }
+}
+
+class _LinkFallback extends StatelessWidget {
+  const _LinkFallback({required this.url});
+
+  final String url;
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: () async {
+        final uri = Uri.tryParse(url);
+        if (uri != null) {
+          // Reuse the app's existing URL opener.
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text('Opening: $url')));
+        }
+      },
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          border: Border.all(color: Theme.of(context).dividerColor),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Row(
+          children: [
+            const Icon(Icons.link, size: 18),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                url,
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: Theme.of(context).colorScheme.primary,
+                  decoration: TextDecoration.underline,
+                ),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }

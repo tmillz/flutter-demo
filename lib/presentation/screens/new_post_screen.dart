@@ -31,21 +31,21 @@ class _NewPostScreenState extends State<NewPostScreen> {
   }
 
   Future<void> _pickImage() async {
-    try {
-      final user = FirebaseAuth.instance.currentUser;
-      if (user == null) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Please sign in again before uploading.'),
-            ),
-          );
-        }
-        return;
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Please sign in again before uploading.'),
+          ),
+        );
       }
+      return;
+    }
 
-      setState(() => _isUploading = true);
+    setState(() => _isUploading = true);
 
+    try {
       final downloadUrl = await pickPostImage(
         user.uid,
       ).timeout(const Duration(seconds: 120));
@@ -62,18 +62,14 @@ class _NewPostScreenState extends State<NewPostScreen> {
           context,
         ).showSnackBar(SnackBar(content: Text('Storage error: $message')));
       }
-      if (mounted) {
-        setState(() => _isUploading = false);
-      }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(SnackBar(content: Text('Error uploading image: $e')));
       }
-      if (mounted) {
-        setState(() => _isUploading = false);
-      }
+    } finally {
+      if (mounted) setState(() => _isUploading = false);
     }
   }
 

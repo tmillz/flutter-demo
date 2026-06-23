@@ -102,29 +102,17 @@ class _MyAppState extends State<MyApp> {
     super.dispose();
   }
 
-  bool _isDarkMode(ThemeMode themeMode) {
-    if (!mounted) return false;
-    try {
-      return themeMode == ThemeMode.dark ||
-          (themeMode == ThemeMode.system &&
-              MediaQuery.of(context).platformBrightness == Brightness.dark);
-    } catch (e) {
-      return false;
-    }
-  }
+  // No longer needs MediaQuery — we only use light/dark, never system.
+  bool _isDarkMode(ThemeMode themeMode) => themeMode == ThemeMode.dark;
 
   void _onThemeChanged() {
-    if (!mounted) return;
-    final themeMode = ThemeService.notifier.value;
-    _backgroundGame?.updateTheme(_isDarkMode(themeMode));
+    _backgroundGame?.updateTheme(_isDarkMode(ThemeService.notifier.value));
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    // Update theme when dependencies change (more reliable than initState)
-    final themeMode = ThemeService.notifier.value;
-    _backgroundGame?.updateTheme(_isDarkMode(themeMode));
+    _backgroundGame?.updateTheme(_isDarkMode(ThemeService.notifier.value));
   }
 
   @override
@@ -132,32 +120,42 @@ class _MyAppState extends State<MyApp> {
     return ValueListenableBuilder<ThemeMode>(
       valueListenable: ThemeService.notifier,
       builder: (context, themeMode, child) {
-        return Stack(
-          textDirection: TextDirection.ltr,
-          children: [
-            // Flame game background
-            Positioned.fill(child: _backgroundWidget),
-            // App content
-            MaterialApp.router(
-              title: 'tmillz',
-              routerConfig: _router,
-              themeMode: themeMode,
-              theme: ThemeData.from(
-                colorScheme: ColorScheme.fromSeed(
-                  seedColor: Colors.cyan,
-                  brightness: Brightness.light,
-                ),
-                useMaterial3: true,
-              ).copyWith(scaffoldBackgroundColor: Colors.transparent),
-              darkTheme: ThemeData.from(
-                colorScheme: ColorScheme.fromSeed(
-                  seedColor: Colors.blueGrey,
-                  brightness: Brightness.dark,
-                ),
-                useMaterial3: true,
-              ).copyWith(scaffoldBackgroundColor: Colors.transparent),
+        // MaterialApp must be the root — never nest it inside a Stack.
+        // Inject the background via builder so it gets proper MediaQuery/Theme
+        // context and never causes RenderBox layout errors.
+        return MaterialApp.router(
+          title: 'tmillz',
+          routerConfig: _router,
+          themeMode: themeMode,
+          theme: ThemeData.from(
+            colorScheme: ColorScheme.fromSeed(
+              seedColor: Colors.cyan,
+              brightness: Brightness.light,
             ),
-          ],
+            useMaterial3: true,
+          ).copyWith(scaffoldBackgroundColor: Colors.transparent),
+          darkTheme: ThemeData.from(
+            colorScheme: ColorScheme.fromSeed(
+              seedColor: Colors.blueGrey,
+              brightness: Brightness.dark,
+            ),
+            useMaterial3: true,
+          ).copyWith(scaffoldBackgroundColor: Colors.transparent),
+          builder: (context, child) {
+            return Stack(
+              textDirection: TextDirection.ltr,
+              children: [
+                // Flame background — excluded from focus and hit-testing so it
+                // never steals browser focus or swallows button taps.
+                Positioned.fill(
+                  child: ExcludeFocus(
+                    child: IgnorePointer(child: _backgroundWidget),
+                  ),
+                ),
+                ?child,
+              ],
+            );
+          },
         );
       },
     );

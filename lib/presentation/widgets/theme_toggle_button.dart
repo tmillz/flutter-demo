@@ -12,13 +12,9 @@ class ThemeToggleButton extends StatelessWidget {
       icon: ValueListenableBuilder<ThemeMode>(
         valueListenable: ThemeService.notifier,
         builder: (context, mode, child) {
-          if (mode == ThemeMode.system) {
-            return const Icon(Icons.brightness_auto);
-          }
-          if (mode == ThemeMode.light) {
-            return const Icon(Icons.light_mode);
-          }
-          return const Icon(Icons.dark_mode);
+          return Icon(
+            mode == ThemeMode.dark ? Icons.dark_mode : Icons.light_mode,
+          );
         },
       ),
       onPressed: () => ThemeService.cycleMode(),

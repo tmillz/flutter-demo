@@ -12,6 +12,7 @@ import '../widgets/post_card.dart';
 import '../widgets/footer_widget.dart';
 import '../widgets/app_brand_title.dart';
 import '../widgets/theme_toggle_button.dart';
+import '../widgets/app_drawer.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key, required this.title});
@@ -155,12 +156,20 @@ class _HomeScreenState extends State<HomeScreen> {
     final cardHorizontalInset = isNarrowScreen ? 8.0 : 16.0;
 
     return Scaffold(
+      drawer: const AppDrawer(),
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         centerTitle: true,
         toolbarHeight: 80,
         title: const AppBrandTitle(),
+        leading: Builder(
+          builder: (context) => IconButton(
+            tooltip: 'Menu',
+            icon: const Icon(Icons.menu),
+            onPressed: () => Scaffold.of(context).openDrawer(),
+          ),
+        ),
         actions: [
           const ThemeToggleButton(),
           Builder(
