@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../data/models/post.dart';
 import '../../data/models/reaction.dart';
 import '../../data/services/firestore_service.dart';
@@ -12,11 +11,7 @@ class PostCard extends StatefulWidget {
   final Post post;
   final bool isAdmin;
 
-  const PostCard({
-    super.key,
-    required this.post,
-    required this.isAdmin,
-  });
+  const PostCard({super.key, required this.post, required this.isAdmin});
 
   @override
   State<PostCard> createState() => _PostCardState();
@@ -40,31 +35,41 @@ class _PostCardState extends State<PostCard> {
   }
 
   void _listenToReactions() {
-    _reactionsSubscription = FirestoreService.getReactionsForPost(widget.post.id).listen((reactions) {
-      if (mounted) {
-        setState(() {
-          _reactions.clear();
-          _reactions.addAll(reactions);
-          _userReactions.clear();
-          final userId = FirebaseAuth.instance.currentUser?.uid;
-          if (userId != null) {
-            for (final reaction in reactions) {
-              if (reaction.userId == userId) {
-                _userReactions.add(reaction.emoji);
+    _reactionsSubscription =
+        FirestoreService.getReactionsForPost(widget.post.id).listen((
+          reactions,
+        ) {
+          if (mounted) {
+            setState(() {
+              _reactions.clear();
+              _reactions.addAll(reactions);
+              _userReactions.clear();
+              final userId = FirebaseAuth.instance.currentUser?.uid;
+              if (userId != null) {
+                for (final reaction in reactions) {
+                  if (reaction.userId == userId) {
+                    _userReactions.add(reaction.emoji);
+                  }
+                }
               }
-            }
+            });
           }
         });
-      }
-    });
   }
 
   Future<void> _toggleReaction(String emoji) async {
     final user = FirebaseAuth.instance.currentUser;
-    if (user == null) return;
+    if (user == null) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Sign in to add emoji reactions')),
+        );
+      }
+      return;
+    }
 
     final hasReacted = _userReactions.contains(emoji);
-    
+
     if (hasReacted) {
       // Find and remove the reaction
       final reactionToRemove = _reactions.firstWhere(
@@ -93,23 +98,35 @@ class _PostCardState extends State<PostCard> {
     return counts;
   }
 
+  TextStyle _emojiFallbackStyle({FontWeight? fontWeight}) {
+    return TextStyle(
+      fontWeight: fontWeight,
+      fontFamilyFallback: const [
+        'Apple Color Emoji',
+        'Segoe UI Emoji',
+        'Noto Color Emoji',
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final emojiCounts = _emojiCounts;
-    final user = FirebaseAuth.instance.currentUser;
+    final isNarrowScreen = MediaQuery.sizeOf(context).width < 600;
+    final cardHorizontalMargin = isNarrowScreen ? 8.0 : 16.0;
 
     return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(8),
+      margin: EdgeInsets.symmetric(
+        horizontal: cardHorizontalMargin,
+        vertical: 8,
       ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Author info
             Row(
               children: [
                 CircleAvatar(
@@ -139,74 +156,52 @@ class _PostCardState extends State<PostCard> {
                   ),
                 ),
                 if (widget.isAdmin)
-                  const Icon(Icons.admin_panel_settings, size: 20, color: Colors.blue),
+                  const Icon(
+                    Icons.admin_panel_settings,
+                    size: 20,
+                    color: Colors.blue,
+                  ),
               ],
             ),
             const SizedBox(height: 12),
-            // Post content
             Text(
               widget.post.content,
               style: Theme.of(context).textTheme.bodyLarge,
             ),
             if (widget.post.embedUrl != null) ...[
               const SizedBox(height: 12),
-              ClipRRect(
-                borderRadius: BorderRadius.circular(8),
-                child: Image.network(
-                  widget.post.embedUrl!,
-                  height: 200,
-                  width: double.infinity,
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) {
-                    return Container(
-                      height: 200,
-                      decoration: BoxDecoration(
-                        color: Colors.grey[200],
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Center(
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Text(
-                            'Embed: ${widget.post.embedUrl}',
-                            style: Theme.of(context).textTheme.bodySmall,
-                            textAlign: TextAlign.center,
-                          ),
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ),
+              _EmbedWidget(url: widget.post.embedUrl!),
             ],
             const SizedBox(height: 12),
-            // Reactions section
-            if (user != null) ...[
-              const Divider(),
-              const SizedBox(height: 8),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: [
-                  Text('React: ', style: GoogleFonts.notoColorEmoji(fontWeight: FontWeight.bold)),
-                  ...['👍', '❤️', '😂', '😮', '😢', '🎉'].map((emoji) {
-                    final count = emojiCounts[emoji] ?? 0;
-                    final hasReacted = _userReactions.contains(emoji);
-                    return InkWell(
-                      onTap: () => _toggleReaction(emoji),
-                      child: Chip(
-                        label: Text(
-                          '$emoji $count',
-                          style: GoogleFonts.notoColorEmoji(),
-                        ),
-                        backgroundColor: hasReacted ? Colors.blue.withValues(alpha: 0.2) : null,
-                        side: hasReacted ? BorderSide(color: Colors.blue) : null,
+            const Divider(),
+            const SizedBox(height: 8),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                Text(
+                  'React: ',
+                  style: _emojiFallbackStyle(fontWeight: FontWeight.bold),
+                ),
+                ...['👍', '❤️', '😂', '😮', '😢', '🎉'].map((emoji) {
+                  final count = emojiCounts[emoji] ?? 0;
+                  final hasReacted = _userReactions.contains(emoji);
+                  return InkWell(
+                    onTap: () => _toggleReaction(emoji),
+                    child: Chip(
+                      label: Text(
+                        '$emoji $count',
+                        style: _emojiFallbackStyle(),
                       ),
-                    );
-                  }),
-                ],
-              ),
-            ],
+                      backgroundColor: hasReacted
+                          ? Colors.blue.withValues(alpha: 0.2)
+                          : null,
+                      side: hasReacted ? BorderSide(color: Colors.blue) : null,
+                    ),
+                  );
+                }),
+              ],
+            ),
           ],
         ),
       ),
@@ -216,11 +211,92 @@ class _PostCardState extends State<PostCard> {
   String _formatDate(DateTime date) {
     final now = DateTime.now();
     final difference = now.difference(date);
-    
+
     if (difference.inMinutes < 1) return 'Just now';
     if (difference.inMinutes < 60) return '${difference.inMinutes}m ago';
     if (difference.inHours < 24) return '${difference.inHours}h ago';
     if (difference.inDays < 7) return '${difference.inDays}d ago';
     return '${date.month}/${date.day}/${date.year}';
+  }
+}
+
+/// Renders an embed URL as an image if it looks like one, otherwise as a
+/// tappable link. Falls back gracefully if the image fails to load.
+class _EmbedWidget extends StatelessWidget {
+  const _EmbedWidget({required this.url});
+
+  final String url;
+
+  bool get _looksLikeImage {
+    final lower = url.toLowerCase();
+    // Firebase Storage download URLs contain "firebasestorage.googleapis.com"
+    // or "firebasestorage.app"; also accept common image extensions.
+    if (lower.contains('firebasestorage.googleapis.com')) return true;
+    if (lower.contains('firebasestorage.app')) return true;
+    return lower.endsWith('.jpg') ||
+        lower.endsWith('.jpeg') ||
+        lower.endsWith('.png') ||
+        lower.endsWith('.gif') ||
+        lower.endsWith('.webp');
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_looksLikeImage) {
+      return ClipRRect(
+        borderRadius: BorderRadius.circular(8),
+        child: Image.network(
+          url,
+          width: double.infinity,
+          fit: BoxFit.cover,
+          errorBuilder: (context, error, _) => _LinkFallback(url: url),
+        ),
+      );
+    }
+    return _LinkFallback(url: url);
+  }
+}
+
+class _LinkFallback extends StatelessWidget {
+  const _LinkFallback({required this.url});
+
+  final String url;
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: () async {
+        final uri = Uri.tryParse(url);
+        if (uri != null) {
+          // Reuse the app's existing URL opener.
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text('Opening: $url')));
+        }
+      },
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          border: Border.all(color: Theme.of(context).dividerColor),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Row(
+          children: [
+            const Icon(Icons.link, size: 18),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                url,
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: Theme.of(context).colorScheme.primary,
+                  decoration: TextDecoration.underline,
+                ),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }

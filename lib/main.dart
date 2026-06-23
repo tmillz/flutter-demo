@@ -32,14 +32,14 @@ final GoRouter _router = GoRouter(
   redirect: (context, state) {
     final adminEmail = 'terrymil1981@gmail.com';
     final user = FirebaseAuth.instance.currentUser;
-    
+
     // Protect /new-post route - only admin can access
     if (state.matchedLocation == '/new-post') {
       if (user == null || user.email != adminEmail) {
         return '/';
       }
     }
-    
+
     return null;
   },
 );
@@ -47,21 +47,21 @@ final GoRouter _router = GoRouter(
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  
+
   // Connect to local Firebase emulators when running in debug.
   if (kDebugMode) {
     try {
       // Add a small delay to ensure Firebase is fully initialized
       await Future.delayed(const Duration(milliseconds: 100));
-      
+
       // Connect to Auth emulator (only works if emulator is running)
       await FirebaseAuth.instance.useAuthEmulator('127.0.0.1', 9099);
       debugPrint('✓ Connected Firebase Auth to emulator at 127.0.0.1:9099');
-      
+
       // Connect to Firestore emulator
       FirebaseFirestore.instance.useFirestoreEmulator('127.0.0.1', 8080);
       debugPrint('✓ Connected Firestore to emulator at 127.0.0.1:8080');
-      
+
       // Connect to Storage emulator
       FirebaseStorage.instance.useStorageEmulator('127.0.0.1', 9199);
       debugPrint('✓ Connected Firebase Storage to emulator at 127.0.0.1:9199');
@@ -71,7 +71,7 @@ Future<void> main() async {
       // Continue with production Firebase instead of crashing
     }
   }
-  
+
   await ThemeService.initialize();
   runApp(const MyApp());
 }
@@ -85,12 +85,15 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   BackgroundGame? _backgroundGame;
+  late final Widget _backgroundWidget;
 
   @override
   void initState() {
     super.initState();
     // Listen to theme changes
     ThemeService.notifier.addListener(_onThemeChanged);
+    _backgroundGame = BackgroundGame();
+    _backgroundWidget = GameWidget(game: _backgroundGame!);
   }
 
   @override
@@ -99,38 +102,17 @@ class _MyAppState extends State<MyApp> {
     super.dispose();
   }
 
-  bool _isDarkMode(ThemeMode themeMode) {
-    if (!mounted) return false;
-    try {
-      return themeMode == ThemeMode.dark ||
-             (themeMode == ThemeMode.system &&
-              MediaQuery.of(context).platformBrightness == Brightness.dark);
-    } catch (e) {
-      return false;
-    }
-  }
+  // No longer needs MediaQuery — we only use light/dark, never system.
+  bool _isDarkMode(ThemeMode themeMode) => themeMode == ThemeMode.dark;
 
   void _onThemeChanged() {
-    if (!mounted) return;
-    final themeMode = ThemeService.notifier.value;
-    _backgroundGame?.updateTheme(_isDarkMode(themeMode));
-  }
-
-  BackgroundGame _createBackgroundGame() {
-    final game = BackgroundGame();
-    _backgroundGame = game;
-    // Set initial theme
-    final themeMode = ThemeService.notifier.value;
-    game.updateTheme(_isDarkMode(themeMode));
-    return game;
+    _backgroundGame?.updateTheme(_isDarkMode(ThemeService.notifier.value));
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    // Update theme when dependencies change (more reliable than initState)
-    final themeMode = ThemeService.notifier.value;
-    _backgroundGame?.updateTheme(_isDarkMode(themeMode));
+    _backgroundGame?.updateTheme(_isDarkMode(ThemeService.notifier.value));
   }
 
   @override
@@ -138,36 +120,42 @@ class _MyAppState extends State<MyApp> {
     return ValueListenableBuilder<ThemeMode>(
       valueListenable: ThemeService.notifier,
       builder: (context, themeMode, child) {
-        return Stack(
-          textDirection: TextDirection.ltr,
-          children: [
-            // Flame game background
-            Positioned.fill(
-              child: GameWidget.controlled(
-                gameFactory: _createBackgroundGame,
-              ),
+        // MaterialApp must be the root — never nest it inside a Stack.
+        // Inject the background via builder so it gets proper MediaQuery/Theme
+        // context and never causes RenderBox layout errors.
+        return MaterialApp.router(
+          title: 'tmillz',
+          routerConfig: _router,
+          themeMode: themeMode,
+          theme: ThemeData.from(
+            colorScheme: ColorScheme.fromSeed(
+              seedColor: Colors.cyan,
+              brightness: Brightness.light,
             ),
-            // App content
-            MaterialApp.router(
-              title: 'tmillz',
-              routerConfig: _router,
-              themeMode: themeMode,
-              theme: ThemeData.from(
-                colorScheme: ColorScheme.fromSeed(
-                  seedColor: Colors.cyan,
-                  brightness: Brightness.light,
-                ),
-                useMaterial3: true,
-              ).copyWith(scaffoldBackgroundColor: Colors.transparent),
-              darkTheme: ThemeData.from(
-                colorScheme: ColorScheme.fromSeed(
-                  seedColor: Colors.blueGrey,
-                  brightness: Brightness.dark,
-                ),
-                useMaterial3: true,
-              ).copyWith(scaffoldBackgroundColor: Colors.transparent),
+            useMaterial3: true,
+          ).copyWith(scaffoldBackgroundColor: Colors.transparent),
+          darkTheme: ThemeData.from(
+            colorScheme: ColorScheme.fromSeed(
+              seedColor: Colors.blueGrey,
+              brightness: Brightness.dark,
             ),
-          ],
+            useMaterial3: true,
+          ).copyWith(scaffoldBackgroundColor: Colors.transparent),
+          builder: (context, child) {
+            return Stack(
+              textDirection: TextDirection.ltr,
+              children: [
+                // Flame background — excluded from focus and hit-testing so it
+                // never steals browser focus or swallows button taps.
+                Positioned.fill(
+                  child: ExcludeFocus(
+                    child: IgnorePointer(child: _backgroundWidget),
+                  ),
+                ),
+                ?child,
+              ],
+            );
+          },
         );
       },
     );

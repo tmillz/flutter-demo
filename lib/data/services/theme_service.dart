@@ -3,44 +3,44 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class ThemeService {
   static const String _key = 'theme_mode';
-  static final ValueNotifier<ThemeMode> notifier = ValueNotifier(ThemeMode.system);
+  // Start as light — initialize() will correct this from storage before the
+  // first frame, but starting as system causes a brief bad state window.
+  static final ValueNotifier<ThemeMode> notifier = ValueNotifier(
+    ThemeMode.light,
+  );
 
   static final FlutterSecureStorage _storage = const FlutterSecureStorage();
 
   static Future<void> initialize() async {
     final String? stored = await _storage.read(key: _key);
-    switch (stored) {
-      case 'light':
-        notifier.value = ThemeMode.light;
-        break;
-      case 'dark':
-        notifier.value = ThemeMode.dark;
-        break;
-      default:
-        notifier.value = ThemeMode.system;
-    }
+    // Default to light — avoids the ambiguous system mode where cycling
+    // from system→light appears to do nothing if the OS is already light.
+    notifier.value = stored == 'dark' ? ThemeMode.dark : ThemeMode.light;
   }
 
   static Future<void> setThemeMode(ThemeMode mode) async {
+    // Update the notifier synchronously first so the UI responds immediately.
     notifier.value = mode;
-    if (mode == ThemeMode.system) {
-      await _storage.delete(key: _key);
-    } else if (mode == ThemeMode.light) {
-      await _storage.write(key: _key, value: 'light');
-    } else if (mode == ThemeMode.dark) {
-      await _storage.write(key: _key, value: 'dark');
+
+    // Persist asynchronously — errors are non-fatal (preference just won't
+    // survive a restart, which is acceptable).
+    try {
+      if (mode == ThemeMode.system) {
+        await _storage.delete(key: _key);
+      } else if (mode == ThemeMode.light) {
+        await _storage.write(key: _key, value: 'light');
+      } else if (mode == ThemeMode.dark) {
+        await _storage.write(key: _key, value: 'dark');
+      }
+    } catch (_) {
+      // Storage unavailable (e.g. WebCrypto not ready) — UI is already updated.
     }
   }
 
-  /// Cycle modes: system -> light -> dark -> system
-  static Future<void> cycleMode() async {
-    final current = notifier.value;
-    if (current == ThemeMode.system) {
-      await setThemeMode(ThemeMode.light);
-    } else if (current == ThemeMode.light) {
-      await setThemeMode(ThemeMode.dark);
-    } else {
-      await setThemeMode(ThemeMode.system);
-    }
+  /// Toggle between light and dark.
+  static void cycleMode() {
+    setThemeMode(
+      notifier.value == ThemeMode.dark ? ThemeMode.light : ThemeMode.dark,
+    );
   }
 }
