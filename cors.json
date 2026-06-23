@@ -1,0 +1,25 @@
+[
+    {
+        "origin": [
+            "https://tmillz.web.app",
+            "https://tmillz.firebaseapp.com",
+            "https://tmillz.com",
+            "https://www.tmillz.com"
+        ],
+        "method": [
+            "GET",
+            "POST",
+            "PUT",
+            "DELETE",
+            "HEAD",
+            "OPTIONS"
+        ],
+        "responseHeader": [
+            "Content-Type",
+            "Authorization",
+            "X-Requested-With",
+            "x-goog-resumable"
+        ],
+        "maxAgeSeconds": 3600
+    }
+]

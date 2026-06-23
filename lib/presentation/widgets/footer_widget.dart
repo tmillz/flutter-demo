@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
-import 'package:url_launcher/url_launcher.dart';
-import 'package:web/web.dart' as web;
+import 'open_external_url.dart';
 
 class FooterWidget extends StatelessWidget {
   const FooterWidget({super.key});
@@ -21,7 +19,9 @@ class FooterWidget extends StatelessWidget {
           Container(
             height: 16,
             width: 1,
-            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.3),
+            color: Theme.of(
+              context,
+            ).colorScheme.onSurface.withValues(alpha: 0.3),
           ),
           const SizedBox(width: 24),
           _FooterLink(
@@ -38,29 +38,17 @@ class _FooterLink extends StatelessWidget {
   final String label;
   final String url;
 
-  const _FooterLink({
-    required this.label,
-    required this.url,
-  });
+  const _FooterLink({required this.label, required this.url});
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () async {
-        if (kIsWeb) {
-          // Use package:web for web - works better in release builds
-          web.window.open(url, '_blank');
-        } else {
-          // Use url_launcher for mobile
-          bool launched = await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
-          if (!launched) {
-            // Handle the case where URL launch fails
-            if (context.mounted) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('Failed to open: $url')),
-              );
-            }
-          }
+        final launched = await openExternalUrl(url);
+        if (!launched && context.mounted) {
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text('Failed to open: $url')));
         }
       },
       child: Text(
@@ -70,7 +58,9 @@ class _FooterLink extends StatelessWidget {
           fontWeight: FontWeight.w500,
           color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
           decoration: TextDecoration.underline,
-          decorationColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
+          decorationColor: Theme.of(
+            context,
+          ).colorScheme.onSurface.withValues(alpha: 0.5),
         ),
       ),
     );

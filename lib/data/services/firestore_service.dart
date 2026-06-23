@@ -4,17 +4,24 @@ import '../models/reaction.dart';
 
 class FirestoreService {
   static final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  static final CollectionReference _postsCollection = _firestore.collection('posts');
-  static final CollectionReference _reactionsCollection = _firestore.collection('reactions');
+  static final CollectionReference<Map<String, dynamic>> _postsCollection =
+      _firestore.collection('posts');
+  static final CollectionReference<Map<String, dynamic>> _reactionsCollection =
+      _firestore.collection('reactions');
+
+  static List<T> _mapDocs<T>(
+    QuerySnapshot<Map<String, dynamic>> snapshot,
+    T Function(Map<String, dynamic> data, String id) fromMap,
+  ) {
+    return snapshot.docs.map((doc) => fromMap(doc.data(), doc.id)).toList();
+  }
 
   // Get all posts as a stream
   static Stream<List<Post>> getPosts() {
     return _postsCollection
         .orderBy('createdAt', descending: true)
         .snapshots()
-        .map((snapshot) => snapshot.docs
-            .map((doc) => Post.fromMap(doc.data() as Map<String, dynamic>, doc.id))
-            .toList());
+        .map((snapshot) => _mapDocs(snapshot, Post.fromMap));
   }
 
   // Get reactions for a specific post
@@ -22,9 +29,7 @@ class FirestoreService {
     return _reactionsCollection
         .where('postId', isEqualTo: postId)
         .snapshots()
-        .map((snapshot) => snapshot.docs
-            .map((doc) => Reaction.fromMap(doc.data() as Map<String, dynamic>, doc.id))
-            .toList());
+        .map((snapshot) => _mapDocs(snapshot, Reaction.fromMap));
   }
 
   // Add a new post (admin only - will be enforced by Firestore rules)
@@ -43,7 +48,11 @@ class FirestoreService {
   }
 
   // Check if user has already reacted with a specific emoji on a post
-  static Stream<bool> hasUserReacted(String postId, String userId, String emoji) {
+  static Stream<bool> hasUserReacted(
+    String postId,
+    String userId,
+    String emoji,
+  ) {
     return _reactionsCollection
         .where('postId', isEqualTo: postId)
         .where('userId', isEqualTo: userId)
