@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:youtube_player_iframe/youtube_player_iframe.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../data/models/post.dart';
@@ -220,17 +221,22 @@ class _PostCardState extends State<PostCard> {
   }
 }
 
-/// Renders an embed URL as an image if it looks like one, otherwise as a
-/// tappable link. Falls back gracefully if the image fails to load.
+/// Renders an embed URL as a YouTube player, image, or tappable link.
 class _EmbedWidget extends StatelessWidget {
   const _EmbedWidget({required this.url});
 
   final String url;
 
+  bool get _isYouTube {
+    final lower = url.toLowerCase();
+    return lower.contains('youtube.com/watch') ||
+        lower.contains('youtu.be/') ||
+        lower.contains('youtube.com/shorts/') ||
+        lower.contains('youtube.com/embed/');
+  }
+
   bool get _looksLikeImage {
     final lower = url.toLowerCase();
-    // Firebase Storage download URLs contain "firebasestorage.googleapis.com"
-    // or "firebasestorage.app"; also accept common image extensions.
     if (lower.contains('firebasestorage.googleapis.com')) return true;
     if (lower.contains('firebasestorage.app')) return true;
     return lower.endsWith('.jpg') ||
@@ -242,6 +248,9 @@ class _EmbedWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (_isYouTube) {
+      return _YouTubeEmbed(url: url);
+    }
     if (_looksLikeImage) {
       return ClipRRect(
         borderRadius: BorderRadius.circular(8),
@@ -254,6 +263,47 @@ class _EmbedWidget extends StatelessWidget {
       );
     }
     return _LinkFallback(url: url);
+  }
+}
+
+class _YouTubeEmbed extends StatefulWidget {
+  const _YouTubeEmbed({required this.url});
+
+  final String url;
+
+  @override
+  State<_YouTubeEmbed> createState() => _YouTubeEmbedState();
+}
+
+class _YouTubeEmbedState extends State<_YouTubeEmbed> {
+  late final YoutubePlayerController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    final videoId = YoutubePlayerController.convertUrlToId(widget.url) ?? '';
+    _controller = YoutubePlayerController.fromVideoId(
+      videoId: videoId,
+      params: const YoutubePlayerParams(
+        showControls: true,
+        showFullscreenButton: true,
+        mute: false,
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.close();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(8),
+      child: YoutubePlayer(controller: _controller, aspectRatio: 16 / 9),
+    );
   }
 }
 

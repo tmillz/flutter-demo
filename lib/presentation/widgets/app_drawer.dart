@@ -9,6 +9,17 @@ class AppDrawer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    // Match the background canvas colors from BackgroundGame
+    const darkHeaderColor = Color(0xFF0f3460);
+    const darkTitleColor = Colors.white;
+    const lightHeaderColor = Color(0xFFFFCC80);
+    const lightTitleColor = Color(0xFF4A3000);
+
+    final headerColor = isDark ? darkHeaderColor : lightHeaderColor;
+    final titleColor = isDark ? darkTitleColor : lightTitleColor;
+    final subtitleColor = titleColor.withValues(alpha: 0.65);
 
     return Drawer(
       child: Column(
@@ -16,7 +27,7 @@ class AppDrawer extends StatelessWidget {
         children: [
           // Header
           DrawerHeader(
-            decoration: BoxDecoration(color: scheme.primaryContainer),
+            decoration: BoxDecoration(color: headerColor),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.end,
@@ -26,7 +37,7 @@ class AppDrawer extends StatelessWidget {
                   style: GoogleFonts.orbitron(
                     fontSize: 28,
                     fontWeight: FontWeight.bold,
-                    color: scheme.onPrimaryContainer,
+                    color: titleColor,
                   ),
                 ),
                 const SizedBox(height: 4),
@@ -34,7 +45,8 @@ class AppDrawer extends StatelessWidget {
                   'ideas in motion',
                   style: GoogleFonts.inter(
                     fontSize: 13,
-                    color: scheme.onPrimaryContainer.withValues(alpha: 0.75),
+                    letterSpacing: 1.2,
+                    color: subtitleColor,
                   ),
                 ),
               ],
