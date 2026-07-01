@@ -3,8 +3,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
 import '../../data/services/firebase_auth_service.dart';
 import '../../data/services/firestore_service.dart';
 import '../../data/models/post.dart';
@@ -100,7 +98,6 @@ class _PostsFeed extends StatelessWidget {
 class _HomeScreenState extends State<HomeScreen> {
   User? _firebaseUser;
   StreamSubscription<User?>? _authSubscription;
-  String? _dadJoke;
   final String _adminEmail = 'terrymil1981@gmail.com';
   final GlobalKey<_CounterSectionState> _counterKey =
       GlobalKey<_CounterSectionState>();
@@ -121,26 +118,6 @@ class _HomeScreenState extends State<HomeScreen> {
         });
       }
     });
-    _fetchDadJoke();
-  }
-
-  Future<void> _fetchDadJoke() async {
-    try {
-      final response = await http.get(
-        Uri.parse('https://icanhazdadjoke.com/'),
-        headers: {'Accept': 'application/json'},
-      );
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        if (mounted) {
-          setState(() {
-            _dadJoke = data['joke'] as String?;
-          });
-        }
-      }
-    } catch (e) {
-      debugPrint('Failed to fetch dad joke: $e');
-    }
   }
 
   @override
@@ -265,66 +242,6 @@ class _HomeScreenState extends State<HomeScreen> {
                             ),
                           ),
                         ),
-                        if (_dadJoke != null) ...[
-                          const SizedBox(height: 24),
-                          Card(
-                            margin: EdgeInsets.symmetric(
-                              horizontal: cardHorizontalInset,
-                            ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Padding(
-                              padding: const EdgeInsets.all(16),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'Dad joke of the day:',
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 8),
-                                  Row(
-                                    children: [
-                                      const Text(
-                                        '😂',
-                                        style: TextStyle(fontSize: 24),
-                                      ),
-                                      const SizedBox(width: 12),
-                                      Expanded(
-                                        child: Text(
-                                          _dadJoke!,
-                                          style: TextStyle(
-                                            fontSize: 14,
-                                            fontStyle: FontStyle.italic,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 8),
-                                  Align(
-                                    alignment: Alignment.centerRight,
-                                    child: Text(
-                                      'Powered by icanhazdadjokes',
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w500,
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .onSurface
-                                            .withValues(alpha: 0.7),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ],
                         const SizedBox(height: 24),
                         _PostsFeed(
                           isAdmin: _isAdmin,

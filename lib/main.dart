@@ -12,6 +12,8 @@ import 'firebase_options.dart';
 import 'data/services/theme_service.dart';
 import 'package:flame/game.dart';
 import 'games/background_game.dart';
+import 'src/register_web_plugins_stub.dart'
+    if (dart.library.html) 'src/register_web_plugins_web.dart';
 
 final GoRouter _router = GoRouter(
   initialLocation: '/',
@@ -46,6 +48,9 @@ final GoRouter _router = GoRouter(
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  // Register the iframe WebView platform on Flutter web before any
+  // YoutubePlayerController is created (fixes WebViewPlatform.instance assertion).
+  registerWebPlugins();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   // Connect to local Firebase emulators when running in debug.
