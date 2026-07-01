@@ -133,10 +133,9 @@ class _AmbientEmitter extends ParticleSystemComponent {
     required this.isDark,
     required int seed,
     required super.position,
-    required Vector2 Function() respawnPosition,
+    required this._respawnPosition,
     this.initialPhase = 0.0,
   }) : _random = Random(seed),
-       _respawnPosition = respawnPosition,
        super(
          particle: _buildParticle(
            kind: kind,
