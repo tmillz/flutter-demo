@@ -23,6 +23,20 @@ class _NewPostScreenState extends State<NewPostScreen> {
   String? _imageUrl;
   bool _isUploading = false;
 
+  bool get _isYouTubeUrl {
+    final url = _embedUrlController.text.trim().toLowerCase();
+    return url.contains('youtube.com/watch') ||
+        url.contains('youtu.be/') ||
+        url.contains('youtube.com/shorts/') ||
+        url.contains('youtube.com/embed/');
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _embedUrlController.addListener(() => setState(() {}));
+  }
+
   @override
   void dispose() {
     _contentController.dispose();
@@ -215,8 +229,17 @@ class _NewPostScreenState extends State<NewPostScreen> {
               TextFormField(
                 controller: _embedUrlController,
                 decoration: InputDecoration(
-                  labelText: 'Embed URL (optional)',
-                  hintText: 'https://example.com',
+                  labelText: 'YouTube or Image URL (optional)',
+                  hintText: 'https://youtube.com/watch?v=...',
+                  prefixIcon: _isYouTubeUrl
+                      ? const Icon(Icons.smart_display, color: Colors.red)
+                      : const Icon(Icons.link),
+                  helperText: _isYouTubeUrl
+                      ? 'YouTube video will be embedded in the post'
+                      : 'Paste a YouTube link or leave blank when uploading an image',
+                  helperStyle: _isYouTubeUrl
+                      ? const TextStyle(color: Colors.red)
+                      : null,
                   filled: true,
                   fillColor: Theme.of(context).cardColor,
                 ),
