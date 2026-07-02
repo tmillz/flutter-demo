@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:flutter_demo/presentation/screens/home_screen.dart';
 import 'package:flutter_demo/presentation/screens/signin_screen.dart';
 import 'package:flutter_demo/presentation/screens/new_post_screen.dart';
+import 'package:flutter_demo/presentation/screens/ping_game_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -30,6 +31,7 @@ final GoRouter _router = GoRouter(
       path: '/new-post',
       builder: (context, state) => const NewPostScreen(),
     ),
+    GoRoute(path: '/ping', builder: (context, state) => const PingGameScreen()),
   ],
   redirect: (context, state) {
     final adminEmail = 'terrymil1981@gmail.com';

@@ -21,35 +21,6 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _CounterSection extends StatefulWidget {
-  const _CounterSection({super.key});
-
-  @override
-  State<_CounterSection> createState() => _CounterSectionState();
-}
-
-class _CounterSectionState extends State<_CounterSection> {
-  int _counter = 0;
-
-  void _incrementCounter() {
-    setState(() {
-      _counter++;
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Text(
-          'You have pushed the button $_counter times!',
-          textAlign: TextAlign.center,
-        ),
-      ],
-    );
-  }
-}
-
 class _PostsFeed extends StatelessWidget {
   final bool isAdmin;
   final double horizontalInset;
@@ -99,9 +70,6 @@ class _HomeScreenState extends State<HomeScreen> {
   User? _firebaseUser;
   StreamSubscription<User?>? _authSubscription;
   final String _adminEmail = 'terrymil1981@gmail.com';
-  final GlobalKey<_CounterSectionState> _counterKey =
-      GlobalKey<_CounterSectionState>();
-
   bool get _isAdmin {
     final user = FirebaseAuth.instance.currentUser;
     return user?.email == _adminEmail;
@@ -204,8 +172,6 @@ class _HomeScreenState extends State<HomeScreen> {
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         const SizedBox(height: 24),
-                        _CounterSection(key: _counterKey),
-                        const SizedBox(height: 16),
                         SizedBox(
                           width: double.infinity,
                           child: Card(
@@ -259,18 +225,16 @@ class _HomeScreenState extends State<HomeScreen> {
           },
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        onPressed: () {
-          if (_isAdmin) {
-            context.push('/new-post');
-          } else {
-            _counterKey.currentState?._incrementCounter();
-          }
-        },
-        tooltip: 'add',
-        child: const Icon(Icons.add),
-      ),
+      floatingActionButton: _isAdmin
+          ? FloatingActionButton(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              onPressed: () => context.push('/new-post'),
+              tooltip: 'New post',
+              child: const Icon(Icons.add),
+            )
+          : null,
     );
   }
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import 'open_external_url.dart';
@@ -54,6 +55,16 @@ class AppDrawer extends StatelessWidget {
           ),
 
           // Nav items
+          _DrawerItem(
+            icon: Icons.sports_tennis_rounded,
+            label: 'Ping',
+            subtitle: 'One-player paddle game',
+            onTap: () {
+              Navigator.of(context).pop();
+              context.push('/ping');
+            },
+          ),
+
           _DrawerItem(
             icon: Icons.local_fire_department_rounded,
             label: 'Flame Examples',
