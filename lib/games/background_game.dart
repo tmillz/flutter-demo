@@ -249,8 +249,8 @@ class _AmbientEmitter extends ParticleSystemComponent {
             ? 3.0 + random.nextDouble() * 4.0
             : 5.0 + random.nextDouble() * 5.0;
         final baseAlpha = isParticle
-            ? 0.5 + random.nextDouble() * 0.3
-            : 0.65 + random.nextDouble() * 0.35;
+            ? 0.35 + random.nextDouble() * 0.21
+            : 0.45 + random.nextDouble() * 0.25;
         final glowSigma = isParticle
             ? 6.0 + random.nextDouble() * 4.0
             : 10.0 + random.nextDouble() * 6.0;
