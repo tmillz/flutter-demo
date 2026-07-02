@@ -66,6 +66,16 @@ class AppDrawer extends StatelessWidget {
           ),
 
           _DrawerItem(
+            icon: Icons.flutter_dash_rounded,
+            label: 'T-Rex',
+            subtitle: 'Chrome offline runner',
+            onTap: () {
+              Navigator.of(context).pop();
+              context.push('/trex');
+            },
+          ),
+
+          _DrawerItem(
             icon: Icons.local_fire_department_rounded,
             label: 'Flame Examples',
             subtitle: 'examples.flame-engine.org',
