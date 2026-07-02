@@ -8,7 +8,9 @@ import 'package:flame/game.dart';
 import 'package:flame/input.dart';
 import 'package:flame/text.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart' show KeyEventResult, VoidCallback;
 
+import 'back_button.dart';
 import 'background/horizon.dart';
 import 'game_over.dart';
 import 'player.dart';
@@ -17,8 +19,13 @@ enum GameState { playing, intro, gameOver }
 
 class TRexGame extends FlameGame
     with KeyboardEvents, TapCallbacks, HasCollisionDetection {
+  TRexGame({this.onBack});
+
+  final VoidCallback? onBack;
+
   final Random random = Random();
   late final Image spriteImage;
+  late final BackButtonComponent _backButton;
 
   @override
   Color backgroundColor() => const Color(0xFFFFFFFF);
@@ -47,6 +54,8 @@ class TRexGame extends FlameGame
     add(horizon);
     add(player);
     add(gameOverPanel);
+    _backButton = BackButtonComponent();
+    add(_backButton);
 
     const chars = '0123456789HI ';
     final renderer = SpriteFontRenderer.fromFont(
@@ -63,7 +72,7 @@ class TRexGame extends FlameGame
     );
     add(
       scoreText = TextComponent(
-        position: Vector2(20, 20),
+        position: Vector2(65, 20),
         textRenderer: renderer,
       ),
     );
@@ -95,6 +104,15 @@ class TRexGame extends FlameGame
 
   @override
   void onTapDown(TapDownEvent event) {
+    final pos = event.canvasPosition;
+    final btn = _backButton;
+    if (pos.x >= btn.x &&
+        pos.x <= btn.x + btn.width &&
+        pos.y >= btn.y &&
+        pos.y <= btn.y + btn.height) {
+      onBack?.call();
+      return;
+    }
     onAction();
   }
 
