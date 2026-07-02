@@ -42,6 +42,7 @@ class TRexGame extends FlameGame
 
   @override
   Future<void> onLoad() async {
+    Flame.images.prefix = 'assets/images/';
     spriteImage = await Flame.images.load('trex.png');
     add(horizon);
     add(player);
