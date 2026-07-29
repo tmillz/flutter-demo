@@ -3,6 +3,7 @@
 A new Flutter project.
 
 <!-- screenshot-start -->
+![Home Screen](screenshots/home-screen.png)
 <!-- screenshot-end -->
 
 ## Getting Started
