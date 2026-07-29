@@ -35,31 +35,44 @@ jobs:
         run: flutter test
 
       - name: Build Flutter web
-        run: flutter build web
+        run: flutter build web --dart-define=USE_EMULATORS=true
 
       - name: Setup Node.js
         uses: actions/setup-node@v7
         with:
           node-version: '20'
 
-      - name: Install Playwright chromium
+      - name: Install Playwright chromium and Firebase CLI
         run: |
           npm install playwright
           npx playwright install --with-deps chromium
+          npm install -g firebase-tools
+
+      - name: Start Firebase emulators
+        run: |
+          firebase emulators:start --only auth,firestore,storage --import=./firebase-export --project tmillz &
+          echo "Waiting for Firestore emulator on port 8080..."
+          for i in $(seq 1 60); do curl -s http://localhost:8080 > /dev/null && echo "Emulators ready" && break || sleep 2; done
 
       - name: Take home screen screenshot
         run: |
-          npx serve build/web -p 8080 &
-          for i in $(seq 1 30); do curl -s http://localhost:8080 > /dev/null && break || sleep 1; done
+          npx serve build/web -p 3000 &
+          for i in $(seq 1 30); do curl -s http://localhost:3000 > /dev/null && break || sleep 1; done
           mkdir -p screenshots
           node - << 'EOF'
           const { chromium } = require('playwright');
           (async () => {
             const browser = await chromium.launch();
             const page = await browser.newPage();
-            await page.goto('http://localhost:8080');
+            await page.goto('http://localhost:3000');
             await page.waitForLoadState('networkidle');
             await page.waitForSelector('flt-glass-pane', { state: 'attached', timeout: 30000 });
+            // Wait until posts (or empty state) replace the loading spinner
+            await page.waitForFunction(() => {
+              const nodes = document.querySelectorAll('flt-semantics');
+              const text = Array.from(nodes).map(el => el.textContent).join(' ');
+              return text.includes('Posts') || text.includes('No posts yet');
+            }, { timeout: 30000 });
             await page.screenshot({ path: 'screenshots/home-screen.png' });
             await browser.close();
           })();

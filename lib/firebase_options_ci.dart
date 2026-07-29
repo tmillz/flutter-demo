@@ -8,9 +8,9 @@ class DefaultFirebaseOptions {
       apiKey: 'placeholder-api-key',
       appId: 'placeholder-app-id',
       messagingSenderId: 'placeholder-sender-id',
-      projectId: 'placeholder-project-id',
-      authDomain: 'placeholder-project.firebaseapp.com',
-      storageBucket: 'placeholder-project.appspot.com',
+      projectId: 'tmillz',
+      authDomain: 'tmillz.firebaseapp.com',
+      storageBucket: 'tmillz.appspot.com',
     );
   }
 }

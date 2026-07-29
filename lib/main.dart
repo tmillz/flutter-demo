@@ -57,8 +57,8 @@ Future<void> main() async {
   registerWebPlugins();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
-  // Connect to local Firebase emulators when running in debug.
-  if (kDebugMode) {
+  // Connect to local Firebase emulators when running in debug or CI screenshot mode.
+  if (kDebugMode || const bool.fromEnvironment('USE_EMULATORS')) {
     try {
       // Add a small delay to ensure Firebase is fully initialized
       await Future.delayed(const Duration(milliseconds: 100));
