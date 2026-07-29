@@ -66,14 +66,27 @@ jobs:
         run: |
           python3 - << 'EOF'
           import re, pathlib
-          readme = pathlib.Path('README.md')
-          content = readme.read_text()
-          block = '<!-- screenshot-start -->\n![Home Screen](screenshots/home-screen.png)\n<!-- screenshot-end -->'
-          pattern = r'<!-- screenshot-start -->.*?<!-- screenshot-end -->'
-          if re.search(pattern, content, re.DOTALL):
-              content = re.sub(pattern, block, content, flags=re.DOTALL)
+
+          readme        = pathlib.Path('README.md')
+          content       = readme.read_text()
+
+          marker_start  = '<!-- screenshot-start -->'
+          marker_end    = '<!-- screenshot-end -->'
+          image_ref     = '![Home Screen](screenshots/home-screen.png)'
+
+          block   = f'{marker_start}\n{image_ref}\n{marker_end}'
+          pattern = re.compile(
+              rf'{re.escape(marker_start)}.*?{re.escape(marker_end)}',
+              re.DOTALL
+          )
+
+          if pattern.search(content):
+              # Markers exist — replace whatever is between them
+              content = pattern.sub(block, content)
           else:
+              # No markers yet — append the block to the end of the file
               content = content.rstrip('\n') + '\n\n' + block + '\n'
+
           readme.write_text(content)
           EOF
 
