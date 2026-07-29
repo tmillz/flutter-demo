@@ -56,7 +56,8 @@ jobs:
             const browser = await chromium.launch();
             const page = await browser.newPage();
             await page.goto('http://localhost:8080');
-            await page.waitForSelector('flt-glass-pane', { timeout: 30000 });
+            await page.waitForLoadState('networkidle');
+            await page.waitForSelector('flt-glass-pane', { state: 'attached', timeout: 30000 });
             await page.screenshot({ path: 'screenshots/home-screen.png' });
             await browser.close();
           })();
