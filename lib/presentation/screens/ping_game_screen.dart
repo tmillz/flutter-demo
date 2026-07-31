@@ -2,8 +2,6 @@ import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
-
-import '../../data/services/theme_service.dart';
 import '../../games/ping_game.dart';
 
 class PingGameScreen extends StatefulWidget {
@@ -16,20 +14,14 @@ class PingGameScreen extends StatefulWidget {
 class _PingGameScreenState extends State<PingGameScreen> {
   late final PingGame _game;
 
-  bool get _isDark => ThemeService.notifier.value == ThemeMode.dark;
-
   @override
   void initState() {
     super.initState();
-    _game = PingGame(isDark: _isDark);
-    ThemeService.notifier.addListener(_onThemeChanged);
+    _game = PingGame();
   }
-
-  void _onThemeChanged() => _game.updateTheme(_isDark);
 
   @override
   void dispose() {
-    ThemeService.notifier.removeListener(_onThemeChanged);
     _game.score.dispose();
     _game.isGameOver.dispose();
     super.dispose();
@@ -39,7 +31,6 @@ class _PingGameScreenState extends State<PingGameScreen> {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
-      backgroundColor: Colors.transparent,
       body: Stack(
         children: [
           // Game canvas — GestureDetector drives paddle movement via touch

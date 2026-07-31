@@ -12,8 +12,6 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart' show kDebugMode;
 import 'firebase_options.dart';
 import 'data/services/theme_service.dart';
-import 'package:flame/game.dart';
-import 'games/background_game.dart';
 import 'src/register_web_plugins_stub.dart'
     if (dart.library.html) 'src/register_web_plugins_web.dart';
 
@@ -93,45 +91,11 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  BackgroundGame? _backgroundGame;
-  late final Widget _backgroundWidget;
-
-  @override
-  void initState() {
-    super.initState();
-    // Listen to theme changes
-    ThemeService.notifier.addListener(_onThemeChanged);
-    _backgroundGame = BackgroundGame();
-    _backgroundWidget = GameWidget(game: _backgroundGame!);
-  }
-
-  @override
-  void dispose() {
-    ThemeService.notifier.removeListener(_onThemeChanged);
-    super.dispose();
-  }
-
-  // No longer needs MediaQuery — we only use light/dark, never system.
-  bool _isDarkMode(ThemeMode themeMode) => themeMode == ThemeMode.dark;
-
-  void _onThemeChanged() {
-    _backgroundGame?.updateTheme(_isDarkMode(ThemeService.notifier.value));
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    _backgroundGame?.updateTheme(_isDarkMode(ThemeService.notifier.value));
-  }
-
   @override
   Widget build(BuildContext context) {
     return ValueListenableBuilder<ThemeMode>(
       valueListenable: ThemeService.notifier,
       builder: (context, themeMode, child) {
-        // MaterialApp must be the root — never nest it inside a Stack.
-        // Inject the background via builder so it gets proper MediaQuery/Theme
-        // context and never causes RenderBox layout errors.
         return MaterialApp.router(
           title: 'tmillz',
           routerConfig: _router,
@@ -142,29 +106,14 @@ class _MyAppState extends State<MyApp> {
               brightness: Brightness.light,
             ),
             useMaterial3: true,
-          ).copyWith(scaffoldBackgroundColor: Colors.transparent),
+          ),
           darkTheme: ThemeData.from(
             colorScheme: ColorScheme.fromSeed(
               seedColor: Colors.blueGrey,
               brightness: Brightness.dark,
             ),
             useMaterial3: true,
-          ).copyWith(scaffoldBackgroundColor: Colors.transparent),
-          builder: (context, child) {
-            return Stack(
-              textDirection: TextDirection.ltr,
-              children: [
-                // Flame background — excluded from focus and hit-testing so it
-                // never steals browser focus or swallows button taps.
-                Positioned.fill(
-                  child: ExcludeFocus(
-                    child: IgnorePointer(child: _backgroundWidget),
-                  ),
-                ),
-                ?child,
-              ],
-            );
-          },
+          ),
         );
       },
     );
