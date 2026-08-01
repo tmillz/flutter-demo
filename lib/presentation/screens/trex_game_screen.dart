@@ -19,7 +19,7 @@ class _TrexGameScreenState extends State<TrexGameScreen> {
     super.initState();
     _game = TRexGame(
       onBack: () {
-        if (mounted) context.pop();
+        if (mounted) context.canPop() ? context.pop() : context.go('/');
       },
     );
   }

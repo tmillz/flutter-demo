@@ -131,7 +131,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   final messenger = ScaffoldMessenger.of(context);
                   final router = GoRouter.of(context);
                   if (!signedIn) {
-                    router.push('/signin');
+                    context.go('/signin');
                     return;
                   }
                   try {
@@ -140,7 +140,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     messenger.showSnackBar(
                       const SnackBar(content: Text('Signed out')),
                     );
-                    router.push('/signin');
+                    router.go('/');
                   } catch (e) {
                     if (!mounted) return;
                     messenger.showSnackBar(

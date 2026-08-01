@@ -1,52 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
-import 'package:flutter_demo/presentation/screens/home_screen.dart';
-import 'package:flutter_demo/presentation/screens/signin_screen.dart';
-import 'package:flutter_demo/presentation/screens/new_post_screen.dart';
-import 'package:flutter_demo/presentation/screens/ping_game_screen.dart';
-import 'package:flutter_demo/presentation/screens/trex_game_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart' show kDebugMode;
 import 'firebase_options.dart';
+import 'app_router.dart';
 import 'data/services/theme_service.dart';
 import 'src/register_web_plugins_stub.dart'
     if (dart.library.html) 'src/register_web_plugins_web.dart';
-
-final GoRouter _router = GoRouter(
-  initialLocation: '/',
-  routes: [
-    GoRoute(
-      path: '/',
-      builder: (context, state) => const HomeScreen(title: 'tmillz'),
-    ),
-    GoRoute(
-      path: '/signin',
-      builder: (context, state) => const SigninScreen(title: 'Sign in'),
-    ),
-    GoRoute(
-      path: '/new-post',
-      builder: (context, state) => const NewPostScreen(),
-    ),
-    GoRoute(path: '/ping', builder: (context, state) => const PingGameScreen()),
-    GoRoute(path: '/trex', builder: (context, state) => const TrexGameScreen()),
-  ],
-  redirect: (context, state) {
-    final adminEmail = 'terrymil1981@gmail.com';
-    final user = FirebaseAuth.instance.currentUser;
-
-    // Protect /new-post route - only admin can access
-    if (state.matchedLocation == '/new-post') {
-      if (user == null || user.email != adminEmail) {
-        return '/';
-      }
-    }
-
-    return null;
-  },
-);
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -98,7 +60,7 @@ class _MyAppState extends State<MyApp> {
       builder: (context, themeMode, child) {
         return MaterialApp.router(
           title: 'tmillz',
-          routerConfig: _router,
+          routerConfig: appRouter,
           themeMode: themeMode,
           theme: ThemeData.from(
             colorScheme: ColorScheme.fromSeed(

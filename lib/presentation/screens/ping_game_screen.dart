@@ -57,7 +57,8 @@ class _PingGameScreenState extends State<PingGameScreen> {
                         context,
                       ).colorScheme.onSurface.withValues(alpha: 0.7),
                     ),
-                    onPressed: () => context.pop(),
+                    onPressed: () =>
+                        context.canPop() ? context.pop() : context.go('/'),
                   ),
                 ),
               ),

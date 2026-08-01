@@ -37,3 +37,9 @@ firebase deploy --only hosting
 OR
 firebase deploy --only hosting,firestore,storage
 ```
+
+To pull sonarcloud issues from a specific pull request use:
+```bash
+curl -u "$SONAR_TOKEN:" \
+  "https://sonarcloud.io/api/issues/search?componentKeys=tmillz_flutter-demo&pullRequest=N" -o sonar_issues.json
+```

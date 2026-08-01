@@ -13,7 +13,8 @@ done
 
 # ── Prerequisites ─────────────────────────────────────────────────────────────
 check_cmd() {
-  command -v "$1" &>/dev/null || { echo "Error: '$1' is not installed."; exit 1; }
+  local cmd="$1"
+  command -v "$cmd" &>/dev/null || { echo "Error: '$cmd' is not installed." >&2; exit 1; }
 }
 check_cmd flutter
 check_cmd firebase
@@ -38,8 +39,8 @@ flutter build web --dart-define=USE_EMULATORS=true
 
 # ── 2. Install Playwright (local, no global pollution) ────────────────────────
 echo "Installing Playwright..."
-npm install --no-save playwright 2>/dev/null
-npx playwright install --with-deps chromium 2>/dev/null
+npm install --no-save --ignore-scripts playwright serve 2>/dev/null
+./node_modules/.bin/playwright install --with-deps chromium 2>/dev/null
 
 # ── 3. Start Firebase emulators ───────────────────────────────────────────────
 echo "Starting Firebase emulators..."
@@ -54,7 +55,7 @@ done
 
 # ── 4. Serve the build ────────────────────────────────────────────────────────
 echo "Serving build/web on port 3000..."
-npx serve build/web -p 3000 &>/tmp/serve.log &
+./node_modules/.bin/serve build/web -p 3000 &>/tmp/serve.log &
 SERVE_PID=$!
 
 for i in $(seq 1 30); do

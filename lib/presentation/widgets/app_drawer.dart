@@ -54,7 +54,7 @@ class AppDrawer extends StatelessWidget {
             subtitle: 'One-player paddle game',
             onTap: () {
               Navigator.of(context).pop();
-              context.push('/ping');
+              context.go('/ping');
             },
           ),
 
@@ -64,7 +64,7 @@ class AppDrawer extends StatelessWidget {
             subtitle: 'Chrome offline runner',
             onTap: () {
               Navigator.of(context).pop();
-              context.push('/trex');
+              context.go('/trex');
             },
           ),
 
