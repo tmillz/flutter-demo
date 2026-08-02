@@ -6,9 +6,6 @@ import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
 
 class PingGame extends FlameGame {
-  PingGame({this.isDark = false});
-
-  bool isDark;
 
   final ValueNotifier<int> score = ValueNotifier(0);
   final ValueNotifier<bool> isGameOver = ValueNotifier(false);
@@ -140,33 +137,11 @@ class PingGame extends FlameGame {
     resumeEngine();
   }
 
-  /// Mirrors the pattern in BackgroundGame — called by the Flutter layer when
-  /// the app's light/dark theme changes.
-  void updateTheme(bool dark) {
-    isDark = dark;
-  }
-
   @override
   void render(Canvas canvas) {
-    // Background mirrors the app's BackgroundGame light/dark palette
-    final gradient = isDark
-        ? const LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [Color(0xFF0f3460), Color(0xFF1a1a2e)],
-          )
-        : const LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [Color(0xFFffffff), Color(0xFFe8e8e8), Color(0xFFffcc80)],
-            stops: [0.0, 0.5, 1.0],
-          );
-    final rect = Rect.fromLTWH(0, 0, size.x, size.y);
-    canvas.drawRect(rect, Paint()..shader = gradient.createShader(rect));
-
     // Horizontal dashed midfield line for visual reference
     final dashPaint = Paint()
-      ..color = (isDark ? Colors.white : Colors.black).withValues(alpha: 0.1)
+      ..color = Colors.grey.withValues(alpha: 0.2)
       ..strokeWidth = 2;
     const dashLen = 12.0;
     const dashGap = 8.0;
@@ -221,9 +196,8 @@ class _BallComponent extends PositionComponent {
 
   @override
   void render(Canvas canvas) {
-    final isDark = (findGame()! as PingGame).isDark;
-    final ballColor = isDark ? Colors.white : const Color(0xFFBF360C);
-    final glowColor = isDark ? Colors.cyanAccent : Colors.deepOrange;
+    const ballColor = Colors.cyan;
+    const glowColor = Colors.cyanAccent;
 
     // Tail drawn first so ball renders on top
     _drawTail(canvas, glowColor: glowColor);
@@ -233,7 +207,7 @@ class _BallComponent extends PositionComponent {
       Offset.zero,
       radius * 2.0,
       Paint()
-        ..color = glowColor.withValues(alpha: isDark ? 0.18 : 0.28)
+        ..color = glowColor.withValues(alpha: 0.22)
         ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 10),
     );
     // Solid ball
@@ -290,11 +264,8 @@ class _PaddleComponent extends PositionComponent {
 
   @override
   void render(Canvas canvas) {
-    final isDark = (findGame()! as PingGame).isDark;
-    final paddleColor = isDark ? Colors.white : const Color(0xFFE65100);
-    final glowColor = isDark
-        ? Colors.cyanAccent.withValues(alpha: 0.35)
-        : Colors.orange.withValues(alpha: 0.55);
+    const paddleColor = Colors.cyan;
+    final glowColor = Colors.cyanAccent.withValues(alpha: 0.4);
 
     final rect = Rect.fromLTWH(0, 0, size.x, size.y);
     final rRect = RRect.fromRectAndRadius(rect, const Radius.circular(7));

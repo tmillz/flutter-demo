@@ -2,6 +2,10 @@
 
 A new Flutter project.
 
+<!-- screenshot-start -->
+![Home Screen](screenshots/home-screen.png)
+<!-- screenshot-end -->
+
 ## Getting Started
 
 This project is a starting point for a Flutter application.
@@ -20,6 +24,12 @@ samples, guidance on mobile development, and a full API reference.
 
 To run the app locally, use the following commands:
 
+To export the firebase emulator data (so it persits beteween runs):
+```bash
+firebase emulators:export ./firebase-export
+```
+
+To import the exported firebase:
 ```bash
 firebase emulators:start --import=./firebase-export
 flutter run -d chrome
@@ -32,4 +42,10 @@ flutter build web --release
 firebase deploy --only hosting
 OR
 firebase deploy --only hosting,firestore,storage
+```
+
+To pull sonarcloud issues from a specific pull request use:
+```bash
+curl -u "$SONAR_TOKEN:" \
+  "https://sonarcloud.io/api/issues/search?componentKeys=tmillz_flutter-demo&pullRequest=N" -o sonar_issues.json
 ```

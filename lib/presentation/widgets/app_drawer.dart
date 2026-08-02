@@ -10,17 +10,10 @@ class AppDrawer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    // Match the background canvas colors from BackgroundGame
-    const darkHeaderColor = Color(0xFF0f3460);
-    const darkTitleColor = Colors.white;
-    const lightHeaderColor = Color(0xFFFFCC80);
-    const lightTitleColor = Color(0xFF4A3000);
-
-    final headerColor = isDark ? darkHeaderColor : lightHeaderColor;
-    final titleColor = isDark ? darkTitleColor : lightTitleColor;
-    final subtitleColor = titleColor.withValues(alpha: 0.65);
+    const headerColor = Colors.cyan;
+    const titleColor = Colors.white;
+    final subtitleColor = Colors.white.withValues(alpha: 0.75);
 
     return Drawer(
       child: Column(
@@ -61,7 +54,7 @@ class AppDrawer extends StatelessWidget {
             subtitle: 'One-player paddle game',
             onTap: () {
               Navigator.of(context).pop();
-              context.push('/ping');
+              context.go('/ping');
             },
           ),
 
@@ -71,7 +64,7 @@ class AppDrawer extends StatelessWidget {
             subtitle: 'Chrome offline runner',
             onTap: () {
               Navigator.of(context).pop();
-              context.push('/trex');
+              context.go('/trex');
             },
           ),
 
