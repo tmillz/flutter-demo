@@ -1,21 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:flutter_demo/presentation/widgets/app_brand_title.dart';
-import 'package:flutter_demo/presentation/widgets/footer_widget.dart';
+import 'package:tmillz/presentation/widgets/app_brand_title.dart';
+import 'package:tmillz/presentation/widgets/footer_widget.dart';
 
 void main() {
-  testWidgets('AppBrandTitle renders title and subtitle', (tester) async {
+  testWidgets('AppBrandTitle renders title', (tester) async {
     await tester.pumpWidget(
       const MaterialApp(
-        home: Scaffold(
-          body: AppBrandTitle(title: 'Tmillz', subtitle: 'ideas in motion'),
-        ),
+        home: Scaffold(body: AppBrandTitle(title: 'Brand')),
       ),
     );
 
-    expect(find.text('Tmillz'), findsOneWidget);
-    expect(find.text('ideas in motion'), findsOneWidget);
+    expect(find.text('Brand'), findsOneWidget);
   });
 
   testWidgets('FooterWidget shows policy links', (tester) async {

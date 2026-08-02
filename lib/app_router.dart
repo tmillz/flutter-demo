@@ -2,24 +2,26 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import 'data/services/admin_auth_service.dart';
 import 'presentation/screens/home_screen.dart';
 import 'presentation/screens/signin_screen.dart';
 import 'presentation/screens/new_post_screen.dart';
 import 'presentation/screens/ping_game_screen.dart';
 import 'presentation/screens/trex_game_screen.dart';
 
-const _adminEmail = 'terrymil1981@gmail.com';
-
 final appRouter = GoRouter(
   initialLocation: '/',
+  refreshListenable: AdminAuthService.notifier,
   errorBuilder: (context, state) => Scaffold(
     appBar: AppBar(title: const Text('Page not found')),
     body: Center(child: Text('No route for ${state.uri.path}')),
   ),
   redirect: (context, state) {
     if (state.uri.path == '/new-post') {
-      final user = FirebaseAuth.instance.currentUser;
-      if (user == null || user.email != _adminEmail) return '/';
+      if (FirebaseAuth.instance.currentUser == null ||
+          !AdminAuthService.isAdmin) {
+        return '/';
+      }
     }
     return null;
   },

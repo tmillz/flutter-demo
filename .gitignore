@@ -78,3 +78,7 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 node_modules/
+
+# Only used to set flutter-adminsdk website administrator credentials. Not needed for development or production.
+package.json
+package-lock.json
