@@ -29,7 +29,6 @@ class _PingGameScreenState extends State<PingGameScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
       body: Stack(
         children: [
@@ -82,18 +81,6 @@ class _PingGameScreenState extends State<PingGameScreen> {
                         color: Theme.of(
                           context,
                         ).colorScheme.onSurface.withValues(alpha: 0.9),
-                        shadows: [
-                          Shadow(
-                            color: isDark
-                                ? Theme.of(
-                                    context,
-                                  ).colorScheme.primary.withValues(alpha: 0.7)
-                                : const Color(
-                                    0xFFFF6D00,
-                                  ).withValues(alpha: 0.65),
-                            blurRadius: 14,
-                          ),
-                        ],
                       ),
                     );
                   },

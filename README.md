@@ -24,6 +24,12 @@ samples, guidance on mobile development, and a full API reference.
 
 To run the app locally, use the following commands:
 
+To export the firebase emulator data (so it persits beteween runs):
+```bash
+firebase emulators:export ./firebase-export
+```
+
+To import the exported firebase:
 ```bash
 firebase emulators:start --import=./firebase-export
 flutter run -d chrome
