@@ -108,7 +108,9 @@ class _SigninScreenState extends State<SigninScreen> {
                     ),
                   ),
                   onPressed: () {
-                    if (mounted) context.pop();
+                    if (mounted) {
+                      context.canPop() ? context.pop() : context.go('/');
+                    }
                   },
                   child: const Text('Back'),
                 ),
