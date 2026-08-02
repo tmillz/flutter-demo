@@ -35,6 +35,13 @@ firebase emulators:start --import=./firebase-export
 flutter run -d chrome
 ```
 
+To update screenshot:
+```
+./scripts/screenshot.sh --no-commit
+OR
+./scripts/screenshot.sh
+```
+
 To deploy the app to Firebase Hosting, use the following command:
 
 ```bash
@@ -44,8 +51,16 @@ OR
 firebase deploy --only hosting,firestore,storage
 ```
 
+## Admin Authorization
+
+Admin access is controlled by the Firebase custom claim `admin: true`.
+Client-side UI checks now read that claim, and Firestore/Storage rules enforce it.
+
+Before using admin-only features such as creating posts or uploading post images,
+set the custom claim on the intended Firebase Auth user with the Firebase Admin SDK.
+
 To pull sonarcloud issues from a specific pull request use:
 ```bash
 curl -u "$SONAR_TOKEN:" \
-  "https://sonarcloud.io/api/issues/search?componentKeys=tmillz_flutter-demo&pullRequest=N" -o sonar_issues.json
+  "https://sonarcloud.io/api/issues/search?componentKeys=tmillz_flutter-demo&pullRequest=<PR_NUMBER>" -o sonar_issues.json
 ```

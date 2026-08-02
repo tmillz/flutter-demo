@@ -6,7 +6,9 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart' show kDebugMode;
 import 'firebase_options.dart';
 import 'app_router.dart';
+import 'data/services/admin_auth_service.dart';
 import 'data/services/theme_service.dart';
+import 'presentation/theme/app_typography.dart';
 import 'src/register_web_plugins_stub.dart'
     if (dart.library.html) 'src/register_web_plugins_web.dart';
 
@@ -42,6 +44,7 @@ Future<void> main() async {
   }
 
   await ThemeService.initialize();
+  await AdminAuthService.initialize();
   runApp(const MyApp());
 }
 
@@ -62,20 +65,42 @@ class _MyAppState extends State<MyApp> {
           title: 'tmillz',
           routerConfig: appRouter,
           themeMode: themeMode,
-          theme: ThemeData.from(
-            colorScheme: ColorScheme.fromSeed(
-              seedColor: Colors.cyan,
-              brightness: Brightness.light,
-            ),
-            useMaterial3: true,
-          ),
-          darkTheme: ThemeData.from(
-            colorScheme: ColorScheme.fromSeed(
-              seedColor: Colors.blueGrey,
-              brightness: Brightness.dark,
-            ),
-            useMaterial3: true,
-          ),
+          theme:
+              ThemeData.from(
+                colorScheme: ColorScheme.fromSeed(
+                  seedColor: Colors.cyan,
+                  brightness: Brightness.light,
+                ),
+                useMaterial3: true,
+              ).copyWith(
+                textTheme: AppTypography.textTheme(
+                  ThemeData.from(
+                    colorScheme: ColorScheme.fromSeed(
+                      seedColor: Colors.cyan,
+                      brightness: Brightness.light,
+                    ),
+                    useMaterial3: true,
+                  ).textTheme,
+                ),
+              ),
+          darkTheme:
+              ThemeData.from(
+                colorScheme: ColorScheme.fromSeed(
+                  seedColor: Colors.blueGrey,
+                  brightness: Brightness.dark,
+                ),
+                useMaterial3: true,
+              ).copyWith(
+                textTheme: AppTypography.textTheme(
+                  ThemeData.from(
+                    colorScheme: ColorScheme.fromSeed(
+                      seedColor: Colors.blueGrey,
+                      brightness: Brightness.dark,
+                    ),
+                    useMaterial3: true,
+                  ).textTheme,
+                ),
+              ),
         );
       },
     );

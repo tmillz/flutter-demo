@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../theme/app_typography.dart';
 
 import 'open_external_url.dart';
 
@@ -10,40 +10,26 @@ class AppDrawer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-
-    const headerColor = Colors.cyan;
-    const titleColor = Colors.white;
-    final subtitleColor = Colors.white.withValues(alpha: 0.75);
+    final headerColor = scheme.surfaceContainerHigh;
 
     return Drawer(
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           // Header
-          DrawerHeader(
-            decoration: BoxDecoration(color: headerColor),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                Text(
-                  'Tmillz',
-                  style: GoogleFonts.orbitron(
-                    fontSize: 28,
-                    fontWeight: FontWeight.bold,
-                    color: titleColor,
+          SizedBox(
+            height: 96,
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                color: headerColor,
+                border: Border(
+                  bottom: BorderSide(
+                    color: scheme.outlineVariant.withValues(alpha: 0.6),
                   ),
                 ),
-                const SizedBox(height: 4),
-                Text(
-                  'ideas in motion',
-                  style: GoogleFonts.inter(
-                    fontSize: 13,
-                    letterSpacing: 1.2,
-                    color: subtitleColor,
-                  ),
-                ),
-              ],
+              ),
+              child: const SizedBox.shrink(),
             ),
           ),
 
@@ -51,7 +37,6 @@ class AppDrawer extends StatelessWidget {
           _DrawerItem(
             icon: Icons.sports_tennis_rounded,
             label: 'Ping',
-            subtitle: 'One-player paddle game',
             onTap: () {
               Navigator.of(context).pop();
               context.go('/ping');
@@ -61,7 +46,6 @@ class AppDrawer extends StatelessWidget {
           _DrawerItem(
             icon: Icons.flutter_dash_rounded,
             label: 'T-Rex',
-            subtitle: 'Chrome offline runner',
             onTap: () {
               Navigator.of(context).pop();
               context.go('/trex');
@@ -69,9 +53,8 @@ class AppDrawer extends StatelessWidget {
           ),
 
           _DrawerItem(
-            icon: Icons.local_fire_department_rounded,
-            label: 'Flame Examples',
-            subtitle: 'examples.flame-engine.org',
+            icon: Icons.extension_rounded,
+            label: 'Built with Flame',
             onTap: () {
               Navigator.of(context).pop();
               openExternalUrl('https://examples.flame-engine.org/');
@@ -84,9 +67,10 @@ class AppDrawer extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.all(16),
             child: Text(
-              '© ${DateTime.now().year} Tmillz',
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: scheme.onSurface.withValues(alpha: 0.4),
+              '© ${DateTime.now().year}',
+              style: AppTypography.drawerFooter(
+                Theme.of(context).textTheme.bodySmall,
+                scheme.onSurface.withValues(alpha: 0.4),
               ),
               textAlign: TextAlign.center,
             ),
@@ -101,13 +85,11 @@ class _DrawerItem extends StatelessWidget {
   const _DrawerItem({
     required this.icon,
     required this.label,
-    required this.subtitle,
     required this.onTap,
   });
 
   final IconData icon;
   final String label;
-  final String subtitle;
   final VoidCallback onTap;
 
   @override
@@ -115,7 +97,7 @@ class _DrawerItem extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       child: ListTile(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
         leading: Container(
@@ -127,14 +109,7 @@ class _DrawerItem extends StatelessWidget {
           ),
           child: Icon(icon, color: scheme.primary, size: 22),
         ),
-        title: Text(label, style: const TextStyle(fontWeight: FontWeight.w600)),
-        subtitle: Text(
-          subtitle,
-          style: TextStyle(
-            fontSize: 11,
-            color: scheme.onSurface.withValues(alpha: 0.5),
-          ),
-        ),
+        title: Text(label, style: AppTypography.drawerItem()),
         onTap: onTap,
       ),
     );

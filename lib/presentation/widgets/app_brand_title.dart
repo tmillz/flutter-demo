@@ -1,29 +1,31 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../theme/app_typography.dart';
 
 class AppBrandTitle extends StatelessWidget {
   final String title;
   final String subtitle;
 
-  const AppBrandTitle({
-    super.key,
-    this.title = 'Tmillz',
-    this.subtitle = 'ideas in motion',
-  });
+  const AppBrandTitle({super.key, this.title = '', this.subtitle = ''});
 
   @override
   Widget build(BuildContext context) {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Text(
-          title,
-          style: GoogleFonts.orbitron(
-            fontWeight: FontWeight.bold,
-            fontSize: 36,
+        if (title.isNotEmpty)
+          Text(
+            title,
+            style: AppTypography.brandTitle(
+              Theme.of(context).textTheme.headlineSmall,
+            ),
           ),
-        ),
-        Text(subtitle, style: GoogleFonts.inter(fontSize: 14)),
+        if (subtitle.isNotEmpty)
+          Text(
+            subtitle,
+            style: AppTypography.brandSubtitle(
+              Theme.of(context).textTheme.bodySmall,
+            ),
+          ),
       ],
     );
   }

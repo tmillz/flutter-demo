@@ -23,9 +23,10 @@ A cross-platform Flutter application serving three purposes:
 - Firestore data is consumed via `StreamBuilder`; no caching layer.
 - **Decision:** No Provider / Riverpod / Bloc. The app is small enough that a lightweight approach avoids unnecessary indirection.
 
-### Routing — GoRouter with email-based admin guard
+### Routing — GoRouter with claim-based admin guard
 - All routes are declared in `lib/app_router.dart` using GoRouter v17.
-- `/new-post` has a `redirect` callback that checks `FirebaseAuth.instance.currentUser?.email == 'terrymil1981@gmail.com@gmail.com'`; non-admins are redirected to `/`.
+- `/new-post` has a `redirect` callback that checks `AdminAuthService.isAdmin`; non-admins are redirected to `/`.
+- Router refresh is wired to `AdminAuthService.notifier` so route access updates when auth claims change.
 - Games are reachable at `/ping` and `/trex`.
 
 ### Firebase — emulator-first development
@@ -38,9 +39,10 @@ A cross-platform Flutter application serving three purposes:
 - Production keys live in `lib/firebase_options.dart` (gitignored or protected).
 - `lib/firebase_options_ci.dart` contains placeholder values and is copied over `firebase_options.dart` in every CI job before `flutter analyze` / `flutter test` run. This keeps secrets out of workflow logs while allowing static analysis.
 
-### Security rules — admin-only writes
-- Firestore: public reads everywhere; writes to `posts/` require `isAdmin()` (email match); `reactions/` allows any authenticated user to create, only owner or admin can delete, updates are denied entirely.
-- Storage: `posts/{allPaths=**}` — public read, write requires authenticated admin email.
+### Security rules — claim-based admin + constrained reactions
+- Firestore: public reads everywhere; writes to `posts/` require `isAdmin()` where `request.auth.token.admin == true`.
+- Firestore `reactions/`: public reads; creates require authenticated users acting as themselves (`request.resource.data.userId == request.auth.uid`) with constrained fields; delete is owner-or-admin; updates are denied.
+- Storage: `posts/{allPaths=**}` — public read, write requires authenticated admin claim (`request.auth.token.admin == true`).
 
 ### Theme — Material 3, two modes, secure persistence
 - Light seed: `Colors.cyan` / Dark seed: `Colors.blueGrey`.
@@ -68,7 +70,7 @@ A cross-platform Flutter application serving three purposes:
 
 ### Image uploads
 - Images are stored at `posts/{userId}/{filename}` in Firebase Storage.
-- Public read access is allowed by storage rules; writes require authenticated admin.
+- Public read access is allowed by storage rules; writes require the admin custom claim.
 
 ---
 
@@ -135,7 +137,10 @@ Two workflow files in `.github/workflows/`:
 ## Conventions to Follow
 
 - **No new state management frameworks.** Add `ValueNotifier` + `ValueListenableBuilder` for local UI state; use Firestore streams for remote data.
-- **Admin check is email-based.** The single admin email `terrymil1981@gmail.com@gmail.com` is referenced in both `app_router.dart` and `firestore.rules`. Keep them in sync.
+- **Admin auth is custom-claim based.** Use Firebase custom claim `admin: true` as the only authorization source; do not reintroduce email-based checks.
+- **Client admin state has one source of truth.** Route/UI checks should read `AdminAuthService` instead of duplicating auth logic in multiple widgets.
+- **Backend rules remain the security boundary.** Client checks are UX only; Firestore/Storage rules must enforce all permissions.
+- **Keep this file in sync with auth changes.** If claim keys, rule logic, or admin flow changes, update this AGENTS file in the same PR.
 - **Never use `npx` in scripts.** Install packages with `npm install --ignore-scripts` first; run via `./node_modules/.bin/`.
 - **Shell functions must assign positional parameters to local variables** (`local foo="$1"`) and print errors to stderr.
 - **No glow or shadow on the ping-game score number.** The `shadows` property on the Orbitron `Text` style was deliberately removed.
