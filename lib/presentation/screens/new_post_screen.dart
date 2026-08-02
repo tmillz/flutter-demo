@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:go_router/go_router.dart';
+import '../../data/services/admin_auth_service.dart';
 import '../../data/services/firestore_service.dart';
 import '../../data/models/post.dart';
 import 'pick_post_image.dart';
@@ -19,7 +20,6 @@ class _NewPostScreenState extends State<NewPostScreen> {
   final _contentController = TextEditingController();
   final _embedUrlController = TextEditingController();
   bool _isSubmitting = false;
-  final String _adminEmail = 'YOUR_EMAIL';
   String? _imageUrl;
   bool _isUploading = false;
 
@@ -52,6 +52,16 @@ class _NewPostScreenState extends State<NewPostScreen> {
           const SnackBar(
             content: Text('Please sign in again before uploading.'),
           ),
+        );
+      }
+      return;
+    }
+
+    final isAdmin = await AdminAuthService.refresh();
+    if (!isAdmin) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Only admin can upload post images')),
         );
       }
       return;
@@ -96,8 +106,8 @@ class _NewPostScreenState extends State<NewPostScreen> {
       final user = FirebaseAuth.instance.currentUser;
       if (user == null) return;
 
-      // Check if user is admin
-      if (user.email != _adminEmail) {
+      final isAdmin = await AdminAuthService.refresh();
+      if (!isAdmin) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Only admin can create posts')),

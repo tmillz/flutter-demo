@@ -18,13 +18,25 @@ class Post {
   });
 
   factory Post.fromMap(Map<String, dynamic> map, String documentId) {
+    final rawCreatedAt = map['createdAt'];
+    final createdAt = switch (rawCreatedAt) {
+      DateTime d => d,
+      final dynamic v when v != null => (v as dynamic).toDate() as DateTime,
+      _ => DateTime.now(),
+    };
+
+    final rawEmbed = map['embedUrl'];
+    final embedUrl = rawEmbed is String && rawEmbed.trim().isNotEmpty
+        ? rawEmbed
+        : null;
+
     return Post(
       id: documentId,
-      content: map['content'] as String,
-      embedUrl: map['embedUrl'] as String?,
-      createdAt: (map['createdAt'] as dynamic).toDate(),
-      authorId: map['authorId'] as String,
-      authorName: map['authorName'] as String,
+      content: (map['content'] as String?)?.trim() ?? '',
+      embedUrl: embedUrl,
+      createdAt: createdAt,
+      authorId: (map['authorId'] as String?) ?? 'unknown',
+      authorName: (map['authorName'] as String?) ?? 'Anonymous',
       authorPhotoUrl: map['authorPhotoUrl'] as String?,
     );
   }

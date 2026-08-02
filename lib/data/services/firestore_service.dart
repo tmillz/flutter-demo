@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 import '../models/post.dart';
 import '../models/reaction.dart';
 
@@ -13,7 +14,15 @@ class FirestoreService {
     QuerySnapshot<Map<String, dynamic>> snapshot,
     T Function(Map<String, dynamic> data, String id) fromMap,
   ) {
-    return snapshot.docs.map((doc) => fromMap(doc.data(), doc.id)).toList();
+    final result = <T>[];
+    for (final doc in snapshot.docs) {
+      try {
+        result.add(fromMap(doc.data(), doc.id));
+      } catch (e) {
+        debugPrint('Skipping malformed document ${doc.id}: $e');
+      }
+    }
+    return result;
   }
 
   // Get all posts as a stream
